@@ -81,31 +81,67 @@ function _player_i()
         }
     }
     local player_states = {
-        idle_left = function(_e) return (not _e.intention.left and _e.state.current == 'run_left') or (_e.state.current == "punch_left" and _e.animation.anim_i > 5) end,
         idle = function(_e)
-            local stopped_moving = not _e.intention.right and _e.state.current == 'run_right'
-            local animation_frame = _e.animation.anim_i
-            local attack_ended = _e.state.current == "punch_right" and animation_frame > 5
-            return stopped_moving or attack_ended
+            -- move player
+            if(_e.intention.left) return 'run_left'
+            if(_e.intention.right) return 'run_right'
 
+            -- attack
+            if(_e.intention.x) return "punch_right"
+
+            -- return current state
+            return "idle"
         end,
-        run_left = function(_e) return _e.intention.left end,
-        run_right = function(_e) return _e.intention.right or (_e.state.current == "punch_right" and _e.animation.anim_i > 5) end,
-        punch_right = function(_e) 
-            local looking_right = _e.state.current=="run_right" or _e.state.current=="idle"
-            if looking_right then
-                --local can_attack = _e.battle.cooldown==0
-                local attacking = _e.intention.x
-                if attacking then
-                    -- local not_moving = not _e.intention.right
-                    return true
-                    -- return looking_right and can_attack and attacking --and not_moving
-                end
-            end
-            return false
+        idle_left = function(_e)
+            -- move player
+            if(_e.intention.left) return 'run_left'
+            if(_e.intention.right) return 'run_right'
+
+            -- attack
+            if(_e.intention.x) return "punch_left"
+
+            -- return current state
+            return "idle_left"
         end,
-        punch_left = function(_e) 
-            return (_e.state.current=="run_left" or _e.state.current=="idle_left") and (_e.intention.x) and not _e.intention.left
+        run_right = function(_e)
+            -- attack
+            if(_e.intention.x) _e.intention.right=false return "punch_right"
+
+            -- keep moving
+            if(_e.intention.right) return "run_right"
+            if(_e.intention.left) return "run_left"
+
+            -- stop
+            return "idle"
+        end,
+        run_left = function(_e)
+            -- attack
+            if(_e.intention.x) _e.intention.left=false return "punch_left"
+
+            -- keep moving
+            if(_e.intention.right) return "run_right"
+            if(_e.intention.left) return "run_left"
+
+            -- stop
+            return "idle_left"
+        end,
+        punch_right = function(_e)
+            local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_right"].frames
+
+            -- idle
+            if(attack_ended) return "idle"
+
+            -- keep punching
+            return "punch_right"
+        end,
+        punch_left = function(_e)
+            local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_left"].frames
+
+            -- idle
+            if(attack_ended) return "idle_left"
+
+            -- keep punching
+            return "punch_left"
         end,
     }
     local player_hitboxes = {
@@ -146,15 +182,19 @@ function player_animation_handler(_e)
 end
 
 function player_contol(_e)
+    -- player attack
+    _e.intention.x = btnp(_e.control.x)
+
+    local is_attacking = _e.state.current == "punch_right" or _e.state.current == "punch_left"
+
     -- player movement
-    _e.intention.left = btn(_e.control.left)
-    _e.intention.right = btn(_e.control.right)
+    _e.intention.left = not is_attacking and btn(_e.control.left)
+    _e.intention.right = not is_attacking and btn(_e.control.right)
     _e.intention.is_moving = _e.intention.left or _e.intention.right
 
     _e.intention.o = btnp(_e.control.o)
     
-    -- player attack
-    _e.intention.x = btnp(_e.control.x)
+    
     -- if btnp(❎) then
     --     _e.intention.x = true
     -- end

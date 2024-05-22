@@ -1,4 +1,4 @@
---- create graphics system
+-- #region graphics system
 -- handles game graphics
 function create_graphics_system()
     return {
@@ -95,7 +95,7 @@ function create_graphics_system()
     }
 end
 
---- create animation system
+-- #region animation system
 -- handles entity animations
 function create_animation_system()
     return {
@@ -122,10 +122,11 @@ function create_animation_system()
                             --     anim.anim_i = 1
                             end
                         end
-
+                        
                         -- set sprite
                         local new_frame = cur_animation.frames[flr(anim.anim_i)]
                         e.sprite.sprite = new_frame
+                        e.sprite.flip_x = cur_animation.flip
                     end
 
                     -- -- *OLD*
@@ -158,7 +159,7 @@ function create_animation_system()
     }
 end
 
---- create control system
+-- #region control system
 -- handles entity controls
 function create_control_system()
     return {
@@ -173,7 +174,7 @@ function create_control_system()
     }
 end
 
---- create physics system
+-- #region physics system
 -- handles entity movement
 function create_physics_system()
     return {
@@ -193,13 +194,11 @@ function create_physics_system()
                     if e.intention.left then
                         -- new_x -= 1 * spd_x
                         direction_x = -1
-                        if (e.sprite) e.sprite.flip_x = true
                     end
                     -- right movement
                     if e.intention.right then
                         -- new_x += 1 * spd_x
                         direction_x = 1
-                        if (e.sprite) e.sprite.flip_x = false
                     end
                     new_x += direction_x * spd_x
 
@@ -271,15 +270,17 @@ function create_trigger_system()
     }
 end
 
+-- #region state system
 function create_state_system()
     return {
         update = function()
             for e in all(entities) do
                 if e.state and e.state.rules then
+                    -- if(e.state.previous!=e.state.current)log(e.kind..":"..e.state.previous.."->"..e.state.current)
                     e.state.previous = e.state.current
-                    for state_name,rule in pairs(e.state.rules) do
-                        if(rule(e)) e.state.current = state_name
-                        -- if(e.state.current != e.state.previous) log(e.state.previous.."->"..e.state.current)
+                    local state_rule = e.state.rules[e.state.current]
+                    if state_rule then
+                        e.state.current = state_rule(e)
                     end
                 end
             end
