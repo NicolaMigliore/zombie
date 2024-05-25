@@ -126,33 +126,10 @@ function create_animation_system()
                         -- set sprite
                         local new_frame = cur_animation.frames[flr(anim.anim_i)]
                         e.sprite.sprite = new_frame
-                        e.sprite.flip_x = cur_animation.flip
+
+                        -- override flip based on animation
+                        if(cur_animation.flip_x) e.sprite.flip_x = cur_animation.flip_x
                     end
-
-                    -- -- *OLD*
-                    -- if e.sprite and anim then
-                    -- -- set animation sprites
-                    -- if (anim.set_animation) anim.set_animation(e)
-
-                    -- -- progress animation
-                    -- local cur_animation = anim.animations[anim.active_anim]
-                    -- if anim.anim_i < #cur_animation.frames + 1 - cur_animation.speed then
-                    --     anim.anim_i += cur_animation.speed
-                    -- -- elseif cur_animation.loop then
-                    -- --     anim.anim_i = 1
-                    -- -- end
-                    -- else
-                    --     if cur_animation.loop then
-                    --         anim.anim_i = 1
-                    --     elseif cur_animation.turn_to_idle then
-                    --         anim.active_anim = "idle"
-                    --         anim.anim_i = 1
-                    --     end
-                    -- end
-
-                    -- -- set sprite
-                    -- local new_frame = cur_animation.frames[flr(anim.anim_i)]
-                    -- e.sprite.sprite = new_frame
                 end
             end
         end
@@ -230,6 +207,7 @@ function create_physics_system()
     }
 end
 
+-- #region trigger system
 function create_trigger_system()
     return {
         update = function()
@@ -288,7 +266,8 @@ function create_state_system()
     }
 end
 
-function create_battla_system()
+-- #region battle system
+function create_battle_system()
     return {
         update = function()
             -- check all entities with hitboxes
@@ -308,10 +287,9 @@ function create_battla_system()
                                 local hurtbox = o.battle.hurtboxes[o.state.current]
                                 if hurtbox and box_collide(e.battle.get_box(e.position,hitbox),o.battle.get_box(o.position,hurtbox)) then
                                     o.battle.health -= e.battle.damage
-                                    -- todo: improve state changing logic
-                                    o.state.current = "damaged"
+                                    o.state.previous = o.state.current
+                                    o.state.current = "_damaged"
                                     if o.battle.health<1 then
-                                        -- del(entities,o)
                                         o.state.current = "_death"
                                     end
                                 end

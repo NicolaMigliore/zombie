@@ -1,4 +1,4 @@
-function spawn_zombie()
+function spawn_zombie(_x)
     local zombie_animations = {
         idle = {
             frames = {
@@ -12,23 +12,8 @@ function spawn_zombie()
             },
             speed = 0.1,
             loop = true,
-            flip = false,
         },
-        idle_left = {
-            frames = {
-                {x=48,y=48,w=16,h=16},
-                {x=48,y=48,w=16,h=16},
-                {x=48,y=48,w=16,h=16},
-                {x=64,y=48,w=16,h=16},
-                {x=80,y=48,w=16,h=16},
-                {x=96,y=48,w=16,h=16},
-                {x=48,y=48,w=16,h=16},
-            },
-            speed = 0.1,
-            loop = true,
-            flip = false,
-        },
-        damaged = {
+        _damaged = {
             frames = {
                 {x=80,y=48,w=16,h=16,pal_rep={{3,7},{2,7},{5,7},{10,5},{8,5}}},
                 {x=80,y=48,w=16,h=16,pal_rep={{3,8},{2,8},{5,8},{10,5},{8,5}}},
@@ -41,7 +26,6 @@ function spawn_zombie()
             },
             speed = 0.3,
             loop = true,
-            flip = false,
         },
         _death = {
             frames = {
@@ -59,9 +43,8 @@ function spawn_zombie()
             },
             speed = 0.1,
             loop = false,
-            flip = false,
         },
-        run_right = {
+        run = {
             frames = {
                 {x=112,y=48,w=16,h=16},
                 {x=0,y=64,w=16,h=16},
@@ -72,20 +55,6 @@ function spawn_zombie()
             },
             speed = 0.1,
             loop = true,
-            flip = false,
-        },
-        run_left = {
-            frames = {
-                {x=112,y=48,w=16,h=16},
-                {x=0,y=64,w=16,h=16},
-                {x=16,y=64,w=16,h=16},
-                {x=32,y=64,w=16,h=16},
-                {x=48,y=64,w=16,h=16},
-                {x=64,y=64,w=16,h=16},
-            },
-            speed = 0.05,
-            loop = true,
-            flip = true,
         },
         attack_right = {
             frames = {
@@ -98,9 +67,8 @@ function spawn_zombie()
                 {x=32,y=80,w=16,h=16},
                 {x=32,y=80,w=16,h=16},
             },
-            speed = 0.1,
+            speed = 0.5,
             loop = false,
-            flip = false,
         },
         attack_left = {
             frames = {
@@ -112,41 +80,35 @@ function spawn_zombie()
                 {x=16,y=80,w=16,h=16},
                 {x=32,y=80,w=16,h=16},
                 {x=32,y=80,w=16,h=16},
+                {x=96,y=64,w=16,h=16},
+                {x=96,y=64,w=16,h=16},
+                {x=96,y=64,w=16,h=16},
+                {x=80,y=64,w=16,h=16},
+                {x=80,y=64,w=16,h=16},
+                {x=80,y=64,w=16,h=16},
             },
-            speed = 0.07,
+            speed = 0.5,
             loop = false,
-            flip = true,
         },
     }
     local zombie_states = {
         idle = function(_e)
             -- move zombie
-            if(_e.intention.left) return "run_left"
-            if(_e.intention.right) return "run_right"
+            if(_e.intention.left) _e.position.dx=-1 return "run"
+            if(_e.intention.right) _e.position.dx=1 return "run"
 
             -- attack
-            if(_e.intention.x) return "attack_right"
+            if(_e.intention.x) return _e.position.dx > 0 and "attack_right" or "attack_left"
 
             -- idle
             return "idle"
         end,
-        idle_left = function(_e)
-            -- move zombie
-            if(_e.intention.left) return "run_left"
-            if(_e.intention.right) return "run_right"
-
-            -- attack
-            if(_e.intention.x) return "attack_left"
-
+        _damaged = function(_e)
             -- idle
-            return "idle_left"
-        end,
-        damaged = function(_e)
-            -- idle
-            local damage_ended = _e.animation.anim_i > #_e.animation.animations["damaged"].frames
+            local damage_ended = _e.animation.anim_i > #_e.animation.animations["_damaged"].frames
             if(damage_ended) return "idle"
             -- continue damaged state
-            return "damaged"
+            return "_damaged"
         end,
         _death = function(_e)
             local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
@@ -157,28 +119,27 @@ function spawn_zombie()
                 return "_death"
             end
         end,
-        run_left = function(_e)
+        run = function(_e)
+            if _e.position.dx > 0 then
+                -- looking right
+                _e.sprite.flip_x = false 
+            else
+                -- looking left
+                _e.sprite.flip_x = true
+            end
+
             -- attack
-            if(_e.intention.x) return "attack_left"
+            if(_e.intention.x) return _e.position.dx > 0 and "attack_right" or "attack_left"
             -- keep moving
-            if(_e.intention.right) return "run_right"
-            if(_e.intention.left) return "run_left"
-            -- idle
-            return "idle"
-        end,
-        run_right = function(_e)
-            -- attack
-            if(_e.intention.x) return "attack_right"
-            -- keep moving
-            if(_e.intention.right) return "run_right"
-            if(_e.intention.left) return "run_left"
+            if(_e.intention.right) _e.position.dx = 1 return "run"
+            if(_e.intention.left) _e.position.dx = -1 return "run"
             -- idle
             return "idle"
         end,
         attack_left = function(_e)
             local attack_ended = _e.animation.anim_i > #_e.animation.animations["attack_left"].frames
             -- idle
-            if(attack_ended) return "idle_left"
+            if(attack_ended) return "idle"
             -- keep punching
             return "attack_left"
         end,
@@ -199,18 +160,18 @@ function spawn_zombie()
     }
     local zombie_hitboxes = {
         attack_left = { ox=0, oy=8, w=3, h=4 },
-        attack_left = { ox=12, oy=8, w=3, h=4 }
+        attack_right = { ox=12, oy=8, w=3, h=4 }
     }
     local new_zombie = new_entity({
         kind = "zombie",
-        position = new_position(102,60,16,16,2),
+        position = new_position(_x,60,16,16,2),
         sprite = new_sprite({x=48,y=48,w=16,h=16}),
         animation = new_animation(zombie_animations,"idle"),
         state = new_state(zombie_states,"idle"),
         intention = new_intention(),
         control = new_control({spd_x = 0.2}),
         -- collider = new_collider(5,3,5,12,{spd_x=0.5}),
-        battle = new_battle({},zombie_hurtboxes,{health=100}),
+        battle = new_battle(zombie_hitboxes,zombie_hurtboxes,{health=100, damage=5}),
         triggers = {new_trigger(-68,0,140,10, zombie_onplayerspot, 'once')}
     })
     add(entities, new_zombie)

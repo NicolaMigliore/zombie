@@ -10,7 +10,7 @@ function _init()
     animation_system = create_animation_system()
     trigger_system = create_trigger_system()
     state_system = create_state_system()
-    battle_system = create_battla_system()
+    battle_system = create_battle_system()
 
     -- setup scene
     load_scene_level()

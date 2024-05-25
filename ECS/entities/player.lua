@@ -12,20 +12,19 @@ function _player_i()
             speed = 0.05,
             loop = true,
         },
-        idle_left = {
+        _damaged = {
             frames = {
-                {x=32,y=0,w=16,h=16},
-                {x=32,y=0,w=16,h=16},
-                {x=32,y=0,w=16,h=16},
-                {x=48,y=0,w=16,h=16},
-                {x=16,y=0,w=16,h=16},
-                {x=32,y=0,w=16,h=16},
+                {x=32,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+                {x=32,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
+                {x=48,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+                {x=48,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
+                {x=16,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+                {x=16,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
             },
-            speed = 0.05,
-            loop = true,
-            flip = true,
+            speed = 0.5,
+            loop = false,
         },
-        run_right = {
+        run = {
             frames = {
                 {x=0,y=16,w=16,h=16},
                 {x=16,y=16,w=16,h=16},
@@ -38,22 +37,6 @@ function _player_i()
             },
             speed = 0.15,
             loop = true,
-            flip = false,
-        },
-        run_left = {
-            frames = {
-                {x=0,y=16,w=16,h=16},
-                {x=16,y=16,w=16,h=16},
-                {x=32,y=16,w=16,h=16},
-                {x=48,y=16,w=16,h=16},
-                {x=64,y=16,w=16,h=16},
-                {x=80,y=16,w=16,h=16},
-                {x=96,y=16,w=16,h=16},
-                {x=112,y=16,w=16,h=16},
-            },
-            speed = 0.15,
-            loop = true,
-            flip = true,
         },
         punch_right = {
             frames = {
@@ -65,7 +48,6 @@ function _player_i()
             },
             speed = 0.2,
             loop = false,
-            flip = false,
         },
         punch_left = {
             frames = {
@@ -77,53 +59,51 @@ function _player_i()
             },
             speed = 0.2,
             loop = false,
-            flip = true,
         }
     }
     local player_states = {
         idle = function(_e)
             -- move player
-            if(_e.intention.left) return 'run_left'
-            if(_e.intention.right) return 'run_right'
+            if(_e.intention.left) _e.position.dx=-1 return 'run'
+            if(_e.intention.right) _e.position.dx=1 return 'run'
 
             -- attack
-            if(_e.intention.x) return "punch_right"
+            if _e.intention.x then 
+                _e.intention.right=false
+                _e.intention.left=false
+                return _e.position.dx > 0 and "punch_right" or "punch_left"
+            end
 
             -- return current state
             return "idle"
         end,
-        idle_left = function(_e)
-            -- move player
-            if(_e.intention.left) return 'run_left'
-            if(_e.intention.right) return 'run_right'
-
-            -- attack
-            if(_e.intention.x) return "punch_left"
-
-            -- return current state
-            return "idle_left"
+        _damaged = function(_e)
+            -- idle
+            local damage_ended = _e.animation.anim_i > #_e.animation.animations["_damaged"].frames
+            if(damage_ended) return "idle"
+            -- continue damaged state
+            return "_damaged"
         end,
-        run_right = function(_e)
+        run = function(_e)
+            if _e.position.dx > 0 then
+                -- looking right
+                _e.sprite.flip_x = false 
+            else
+                -- looking left
+                _e.sprite.flip_x = true
+            end
             -- attack
-            if(_e.intention.x) _e.intention.right=false return "punch_right"
-
+            if _e.intention.x then 
+                _e.intention.right=false
+                _e.intention.left=false
+                return _e.position.dx > 0 and "punch_right" or "punch_left"
+            end
             -- keep moving
-            if(_e.intention.right) return "run_right"
-            if(_e.intention.left) return "run_left"
+            if(_e.intention.right) _e.position.dx = 1 return "run"
+            if(_e.intention.left) _e.position.dx = -1 return "run"
 
-            -- stop
+            -- idle
             return "idle"
-        end,
-        run_left = function(_e)
-            -- attack
-            if(_e.intention.x) _e.intention.left=false return "punch_left"
-
-            -- keep moving
-            if(_e.intention.right) return "run_right"
-            if(_e.intention.left) return "run_left"
-
-            -- stop
-            return "idle_left"
         end,
         punch_right = function(_e)
             local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_right"].frames
@@ -138,11 +118,17 @@ function _player_i()
             local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_left"].frames
 
             -- idle
-            if(attack_ended) return "idle_left"
+            if(attack_ended) return "idle"
 
             -- keep punching
             return "punch_left"
         end,
+    }
+    local player_hurtboxes = {
+        idle = { ox=5, oy=3, w=5, h=12 },
+        run = { ox=5, oy=3, w=5, h=12 },
+        punch_right = { ox=5, oy=3, w=5, h=12 },
+        punch_left = { ox=5, oy=3, w=5, h=12 },
     }
     local player_hitboxes = {
         punch_left = { ox=0, oy=8, w=3, h=4 },
@@ -153,7 +139,7 @@ function _player_i()
         kind = "player",
         position = new_position(22,60,16,16,2),
         sprite = new_sprite({x=16,y=0,w=16,h=16}),
-        animation = new_animation(player_animation,"idle",player_animation_handler),
+        animation = new_animation(player_animation,"idle"),
         -- control = new_control(⬅️,➡️,nil,nil,0.7,0,🅾️,❎,player_contol),
         control = new_control({
             left = ⬅️,
@@ -166,19 +152,9 @@ function _player_i()
         intention = new_intention(),
         collider = new_collider(5,3,5,12,{}),
         state = new_state(player_states,"idle"),
-        battle = new_battle(player_hitboxes,{},{health=200, damage=20, cd_time= 45}),
+        battle = new_battle(player_hitboxes,player_hurtboxes,{health=200, damage=20, cd_time= 45}),
     })
     add(entities,player)
-end
-
-function player_animation_handler(_e)
-    -- local new_anim = "idle"
-    -- if (_e.intention.is_moving) new_anim = "run"
-    -- if (_e.intention.attack_1) new_anim = "punch"
-
-    -- if _e.animation.active_anim != new_anim then
-    --     _e.animation.active_anim = new_anim
-    -- end
 end
 
 function player_contol(_e)
@@ -194,9 +170,7 @@ function player_contol(_e)
 
     _e.intention.o = btnp(_e.control.o)
     
-    
     -- if btnp(❎) then
     --     _e.intention.x = true
     -- end
-
 end
