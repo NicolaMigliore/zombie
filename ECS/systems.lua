@@ -36,6 +36,7 @@ function create_graphics_system()
                     )
                     pal()
                 end
+
                 -- render colliders
                 if e.collider and (e.collider.show or show_colliders) then
                     local color = e.collider.has_collision and 8 or 7
@@ -62,6 +63,7 @@ function create_graphics_system()
                     end
                 end
 
+                -- render hitboxes and hutboxes
                 if e.battle and e.position and e.state and show_hitboxes then
                     -- render hitboxes
                     if e.battle.hitboxes then
@@ -88,6 +90,16 @@ function create_graphics_system()
                                 14
                             )
                         end
+                    end
+                end
+
+                -- render interactions
+                -- interactions
+                if e.kind == "player" then
+                    local cel_x = flr((e.position.x+8)/8)
+                    if fget(mget(cel_x,8),0) then
+                        -- spr(209,cel_x*8,56)
+                        print("🅾️",cel_x*8,56,9)
                     end
                 end
             end

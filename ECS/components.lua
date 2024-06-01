@@ -1,4 +1,4 @@
---- create position component ---
+-- #region position component ---
 -- @param _x | x coordinate
 -- @param _y | y coordinate
 -- @param _z | z coordinate
@@ -17,7 +17,7 @@ function new_position(_x,_y,_w,_h,_z)
     return p
 end
 
---- create sprite component ---
+-- #region sprite component ---
 -- @param _sprite | sprites object in the form { x = <x coord>, y = <y coord> ,w = <sprite width in pixels>,h = <sprite height in pixels>,pal_rep = <palette replacent list {{c1,c2}}> }
 -- @param _flip_x | boolean to describe if the sprite should be flipped on the x axis
 -- @param _flip_y | boolean to describe if the sprite should be flipped on the y axis
@@ -32,7 +32,7 @@ function new_sprite(_sprite,_flip_x,_flip_y,_palette_replace)
     return s
 end
 
---- create animation component ---
+-- #region animation component ---
 -- @param _animations | table of animations in the form { <anim_name> = { frames = <list of sprite object>, speed = <animation speed>, loop = <define if animation should be looped> }  }
 -- @param _active_anim | name of currently active animation
 -- @param _set_anim | function to control currently active animation
@@ -46,7 +46,7 @@ function new_animation(_animations,_active_anim,_set_anim,_timer)
     return a
 end
 
---- create state component ---
+-- #region state component ---
 -- @param initial_state | initial state of the entity
 -- @param state_controllers | table of function to call to check state rules and assign the state.
 --  In the form { <state_name> = <rule function> }
@@ -60,7 +60,7 @@ function new_state(_rules,_initial_state)
     return s
 end
 
---- create new control component
+-- #region control component
 -- @param _left | reference to left button
 -- @param _right | reference to right button
 -- @param _up | reference to up button
@@ -83,7 +83,7 @@ function new_control(_opts)
     return c
 end
 
---- create new intention component
+-- #region intention component
 -- describes the entity's intention to move in a direction
 function new_intention()
     local i = {
@@ -102,11 +102,14 @@ function new_intention()
     return i
 end
 
+-- #region battle component
 function new_battle(_hitboxes,_hurtboxes,_opts)
+    local health = _opts.health or 100
     local b ={
         hitboxes = _hitboxes,
         hurtboxes = _hurtboxes,
-        health =  _opts.health or 100,
+        health =  health,
+        max_health = health,
         cd_time = _opts.cd_time or 180,
         cooldown = _opts.cd_time or 180,
         damage = _opts.damage or 20,
@@ -124,7 +127,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
     return b
 end
 
---- create a collider box component
+-- #region collider box component
 -- @param _ox | x offset relative to the entity position
 -- @param _oy | y offset relative to the entity position
 -- @param _w | width of the collider box
@@ -168,7 +171,7 @@ function new_collider(_ox,_oy,_w,_h,_opts)
     return c
 end
 
---- create a trigger box component
+-- #region trigger box component
 -- @param _ox | x offset relative to the entity position
 -- @param _oy | y offset relative to the entity position
 -- @param _w | width of the collider box
@@ -191,7 +194,22 @@ function new_trigger(_ox,_oy,_w,_h,_ontrigger,_kind)
     return t
 end
 
---- create entity ---
+-- #region inventory component
+function new_inventory(_size,_visible,_x,_y,_items)
+    local items = _items or {}
+    local i = {
+        size = _size,
+        visible = _visible,
+        x = _x,
+        y = _y,
+        items = items,
+        active_i = 1,
+        bullets = 0
+    }
+    return i
+end
+
+-- #region create entity ---
 function new_entity(_opts)
     local e = {
         kind = _opts.kind,
@@ -203,7 +221,8 @@ function new_entity(_opts)
         animation = _opts.animation,
         triggers = _opts.triggers,
         state = _opts.state or new_state({},"idle"),
-        battle = _opts.battle
+        battle = _opts.battle,
+        inventory = _opts.inventory,
     }
     return e
 end

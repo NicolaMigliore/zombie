@@ -7,14 +7,13 @@ function _scene_level_u()
     battle_system.update()
 
     -- move camera
-    if player and player.intention.is_moving then
-        gamecamera.position.x = min(896,max(0,player.position.x - 30))
-        camera(gamecamera.position.x)
-    end
+    gamecamera.position.x = min(896,max(0,player.position.x - 30))
+    camera(gamecamera.position.x)
 end
 
 function _scene_level_d()
     graphics_system.update({bg_color=1,draw_level=draw_level})
+    _ui_d()
 end
 
 -- draw level background
@@ -84,7 +83,7 @@ end
 
 function load_scene_level()
     entitie = {}
-    level = 0
+    level = 1
     mode = "level"
 
     -- create level
@@ -95,5 +94,9 @@ function load_scene_level()
     _player_i()
 
     -- spawn test zombie
-    spawn_zombie()
+    spawn_zombie(102)
+    -- spawn_zombie(110)
+    -- spawn_zombie(120)
+    -- spawn_zombie(210)
+    -- spawn_zombie(230)
 end

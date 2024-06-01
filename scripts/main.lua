@@ -28,8 +28,6 @@ function _update60()
         _scene_level_u()
     elseif mode == "death" then 
     end
-
-    
 end
 
 function _draw()

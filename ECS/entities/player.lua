@@ -1,4 +1,5 @@
 function _player_i()
+    -- #region player entity
     local player_animation = {
         idle = {
             frames = {
@@ -144,6 +145,8 @@ function _player_i()
         control = new_control({
             left = ⬅️,
             right = ➡️,
+            up = ⬆️,
+            down = ⬇️,
             spd_x = 0.7,
             o = 🅾️,
             x = ❎,
@@ -153,6 +156,8 @@ function _player_i()
         collider = new_collider(5,3,5,12,{}),
         state = new_state(player_states,"idle"),
         battle = new_battle(player_hitboxes,player_hurtboxes,{health=200, damage=20, cd_time= 45}),
+        --inventory = new_inventory(3,true,2,98,{})
+        inventory = new_inventory(3,true,50,96,{})
     })
     add(entities,player)
 end
@@ -168,9 +173,48 @@ function player_contol(_e)
     _e.intention.right = not is_attacking and btn(_e.control.right)
     _e.intention.is_moving = _e.intention.left or _e.intention.right
 
-    _e.intention.o = btnp(_e.control.o)
+    -- check for interaction
+    local cel_x = flr((_e.position.x+8)/8)
+    if fget(mget(cel_x,8),0) then
+        local is_interacting = btnp(_e.control.o)
+        _e.intention.o = is_interacting
+        if is_interacting then
+            loot()
+            mset(cel_x,8,200)
+            -- todo: add particles
+        end
+    end
+
+    -- manage inventory
+    if btnp(_e.control.up) then
+        _e.inventory.active_i += 1
+        if(_e.inventory.active_i>#_e.inventory.items) _e.inventory.active_i = 1
+    elseif btnp(_e.control.down) then
+        _e.inventory.active_i -= 1
+        if(_e.inventory.active_i<1) _e.inventory.active_i = #_e.inventory.items
+    end
+end
+
+function loot()
+    local r = rnd()
+    if(r > 0.1) return
+
+    if(r > 0.03) player.battle.health = min(player.battle.health+10, 200) return
     
-    -- if btnp(❎) then
-    --     _e.intention.x = true
-    -- end
+    local gloves = new_entity({
+        sprite = new_sprite({x=0,y=104,w=8,h=8}),
+    })
+    local crowbar = new_entity({
+        sprite = new_sprite({x=0,y=8,w=8,h=8}),
+    })
+    local gun = new_entity({
+        sprite = new_sprite({x=8,y=0,w=8,h=8}),
+    })
+
+    local nbr_items = #player.inventory.items
+    if(nbr_items==0) add(player.inventory.items,gloves) player.inventory.active_i = 1
+    if(nbr_items==1) add(player.inventory.items,crowbar) player.inventory.active_i = 2
+    if(nbr_items==2) add(player.inventory.items,gun) player.inventory.active_i = 3
+    if(nbr_items>2) player.inventory.bullets += flr(rnd()*5)
+    
 end
