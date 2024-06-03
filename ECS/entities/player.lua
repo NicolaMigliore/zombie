@@ -70,7 +70,47 @@ function _player_i()
             },
             speed = 0.2,
             loop = false,
-        }
+        },
+        swing_right = {
+            frames = {
+                {x=16,y=0,w=16,h=16},
+                {x=80,y=32,w=16,h=16},
+                {x=96,y=32,w=16,h=16},
+                {x=112,y=32,w=16,h=16},
+                {x=0,y=48,w=16,h=16},
+                {x=16,y=48,w=16,h=16},
+                {x=32,y=48,w=16,h=16},
+                {x=32,y=48,w=16,h=16},
+            },
+            speed = 0.2,
+            loop = false,
+        },
+        swing_left = {
+            frames = {
+                {x=16,y=0,w=16,h=16},
+                {x=80,y=32,w=16,h=16},
+                {x=96,y=32,w=16,h=16},
+                {x=112,y=32,w=16,h=16},
+                {x=0,y=48,w=16,h=16},
+                {x=16,y=48,w=16,h=16},
+                {x=32,y=48,w=16,h=16},
+                {x=32,y=48,w=16,h=16},
+            },
+            speed = 0.2,
+            loop = false,
+        },
+        shoot = {
+            frames = {
+                {x=16,y=0,w=16,h=16},
+                {x=64,y=0,w=16,h=16},
+                {x=80,y=0,w=16,h=16},
+                {x=96,y=0,w=16,h=16},
+                {x=112,y=0,w=16,h=16},
+
+            },
+            speed = 0.2,
+            loop = false,
+        },
     }
     local player_states = {
         idle = function(_e)
@@ -82,7 +122,7 @@ function _player_i()
             if _e.intention.x then 
                 _e.intention.right=false
                 _e.intention.left=false
-                return _e.position.dx > 0 and "punch_right" or "punch_left"
+                return get_player_attack_state(_e)
             end
 
             -- return current state
@@ -117,7 +157,7 @@ function _player_i()
             if _e.intention.x then 
                 _e.intention.right=false
                 _e.intention.left=false
-                return _e.position.dx > 0 and "punch_right" or "punch_left"
+                return get_player_attack_state(_e)
             end
             -- keep moving
             if(_e.intention.right) _e.position.dx = 1 return "run"
@@ -144,16 +184,52 @@ function _player_i()
             -- keep punching
             return "punch_left"
         end,
+        swing_right = function(_e)
+            local attack_ended = _e.animation.anim_i > #_e.animation.animations["swing_right"].frames
+
+            -- idle
+            if(attack_ended) return "idle"
+
+            -- keep swinging
+            return "swing_right"
+        end,
+        swing_left = function(_e)
+            local attack_ended = _e.animation.anim_i > #_e.animation.animations["swing_left"].frames
+
+            -- idle
+            if(attack_ended) return "idle"
+
+            -- keep swinging
+            return "swing_left"
+        end,
+        shoot = function(_e)
+            local attack_ended = _e.animation.anim_i > #_e.animation.animations["shoot"].frames
+            
+            -- idle
+            if(attack_ended) return "idle"
+            
+            local anim_perch = _e.animation.anim_i/#_e.animation.animations["shoot"].frames
+            -- shoot the buller
+            if(anim_perch == 0.8 ) spawn_bullet(_e.position.x, _e.position.dx)
+
+            -- keep punching
+            return "shoot"
+        end,
     }
     local player_hurtboxes = {
         idle = { ox=5, oy=3, w=5, h=12 },
         run = { ox=5, oy=3, w=5, h=12 },
         punch_right = { ox=5, oy=3, w=5, h=12 },
         punch_left = { ox=5, oy=3, w=5, h=12 },
+        swing_left = { ox=5, oy=3, w=5, h=12 },
+        swing_left = { ox=5, oy=3, w=5, h=12 },
+        shoot = { ox=5, oy=3, w=5, h=12 },
     }
     local player_hitboxes = {
         punch_left = { ox=0, oy=8, w=3, h=4 },
-        punch_right = { ox=12, oy=8, w=3, h=4 }
+        punch_right = { ox=12, oy=8, w=3, h=4 },
+        swing_left = { ox=-2, oy=8, w=5, h=4 },
+        swing_right = { ox=12, oy=8, w=5, h=4 },
     }
 
     player = new_entity({
@@ -161,7 +237,6 @@ function _player_i()
         position = new_position(22,60,16,16,2),
         sprite = new_sprite({x=16,y=0,w=16,h=16}),
         animation = new_animation(player_animation,"idle"),
-        -- control = new_control(⬅️,➡️,nil,nil,0.7,0,🅾️,❎,player_contol),
         control = new_control({
             left = ⬅️,
             right = ➡️,
@@ -180,13 +255,19 @@ function _player_i()
         inventory = new_inventory(3,true,50,96,{})
     })
     add(entities,player)
+    loot()
 end
 
 function player_contol(_e)
     -- player attack
     _e.intention.x = btnp(_e.control.x)
 
-    local is_attacking = _e.state.current == "punch_right" or _e.state.current == "punch_left"
+    local is_attacking = 
+        _e.state.current == "punch_right" or
+        _e.state.current == "punch_left" or
+        _e.state.current == "swing_right" or
+        _e.state.current == "swing_left" or
+        _e.state.current == "shoot"
 
     -- player movement
     _e.intention.left = not is_attacking and btn(_e.control.left)
@@ -215,19 +296,52 @@ function player_contol(_e)
     end
 end
 
+function get_player_attack_state(_e)
+    local equipped_item = _e.inventory.items[_e.inventory.active_i]
+    -- hand
+    if(equipped_item == nil) return _e.position.dx > 0 and "punch_right" or "punch_left"
+    if(equipped_item.kind == "gloves") return _e.position.dx > 0 and "punch_right" or "punch_left"
+
+    -- crowbar
+    if(equipped_item.kind == "crowbar") return _e.position.dx > 0 and "swing_right" or "swing_left"
+
+    -- gun
+    if(equipped_item.kind == "gun") return "shoot"
+end
+
 function loot()
+    ---
+    local gloves = new_entity({
+        kind = "gloves",
+        sprite = new_sprite({x=0,y=104,w=8,h=8}),
+    })
+    local crowbar = new_entity({
+        kind = "crowbar",
+        sprite = new_sprite({x=0,y=8,w=8,h=8}),
+    })
+    local gun = new_entity({
+        kind = "gun",
+        sprite = new_sprite({x=8,y=0,w=8,h=8}),
+    })
+    add(player.inventory.items,gloves) player.inventory.active_i = 1
+    add(player.inventory.items,crowbar) player.inventory.active_i = 2
+    add(player.inventory.items,gun) player.inventory.active_i = 3
+    ---
     local r = rnd()
     if(r > 0.1) return
 
     if(r > 0.03) player.battle.health = min(player.battle.health+10, 200) return
     
     local gloves = new_entity({
+        kind = "gloves",
         sprite = new_sprite({x=0,y=104,w=8,h=8}),
     })
     local crowbar = new_entity({
+        kind = "crowbar",
         sprite = new_sprite({x=0,y=8,w=8,h=8}),
     })
     local gun = new_entity({
+        kind = "gun",
         sprite = new_sprite({x=8,y=0,w=8,h=8}),
     })
 

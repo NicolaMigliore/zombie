@@ -18,6 +18,7 @@ __lua__
 #include ecs/entities/camera.lua
 #include ecs/entities/player.lua
 #include ecs/entities/zombie.lua
+#include ecs/entities/bullet.lua
 
 __gfx__
 00000000eeeeeeee0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

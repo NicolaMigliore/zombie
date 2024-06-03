@@ -155,8 +155,7 @@ function spawn_zombie(_x)
     }
     local zombie_hurtboxes = {
         idle = { ox=4, oy=3, w=7, h=12 },
-        run_right = { ox=4, oy=3, w=7, h=12 },
-        run_left = { ox=4, oy=3, w=7, h=12 },
+        run = { ox=4, oy=3, w=7, h=12 },
         attack_right = { ox=4, oy=3, w=7, h=12 },
         attack_left = { ox=4, oy=3, w=7, h=12 },
     }
@@ -174,7 +173,8 @@ function spawn_zombie(_x)
         control = new_control({spd_x = 0.2}),
         -- collider = new_collider(5,3,5,12,{spd_x=0.5}),
         battle = new_battle(zombie_hitboxes,zombie_hurtboxes,{health=100, damage=5}),
-        triggers = {new_trigger(-68,0,140,10, zombie_onplayerspot, 'once')}
+        triggers = {new_trigger(-68,0,140,10, zombie_onplayerspot, 'once')},
+        collider = new_collider(4,3,7,12,{}),
     })
     add(entities, new_zombie)
 end

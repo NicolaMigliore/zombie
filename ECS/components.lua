@@ -11,7 +11,7 @@ function new_position(_x,_y,_w,_h,_z)
         z = _z or 1,
         w = _w or 16,
         h = _h or 16,
-        dx = 0,
+        dx = 1,
         dy = 0,
     }
     return p
@@ -22,12 +22,11 @@ end
 -- @param _flip_x | boolean to describe if the sprite should be flipped on the x axis
 -- @param _flip_y | boolean to describe if the sprite should be flipped on the y axis
 -- @param _palette_replace | list of couples of colors to replace in the form {{c1,c2}}
-function new_sprite(_sprite,_flip_x,_flip_y,_palette_replace)
+function new_sprite(_sprite,_flip_x,_flip_y)
     local s = {
         sprite = _sprite,
         flip_x = _flip_x or false,
         flip_y = _flip_y or false,
-        -- palette_replace = _palette_replace
     }
     return s
 end
