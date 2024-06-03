@@ -20,21 +20,26 @@ function _init()
     show_hitboxes = false
 
     cam_x = 0
+
+    _ui_i()
 end
 
 function _update60()
     if mode == "title" then
     elseif mode == "level" then 
         _scene_level_u()
-    elseif mode == "death" then 
+    elseif mode == "death" then
+        _scene_death_u()
     end
+    _ui_u()
 end
 
 function _draw()
     if mode == "title" then
     elseif mode == "level" then 
         _scene_level_d()
-    elseif mode == "death" then 
+    elseif mode == "death" then
+        _scene_death_d()
     end
     -- if(gamecamera) camera(gamecamera.position.x)
 end

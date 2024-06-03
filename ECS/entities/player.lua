@@ -25,6 +25,16 @@ function _player_i()
             speed = 0.5,
             loop = false,
         },
+        _death = {
+            frames = {
+                {x=48,y=112,w=8,h=8},
+                {x=56,y=112,w=8,h=8},
+                {x=48,y=120,w=8,h=8},
+                {x=56,y=120,w=8,h=8},
+            },
+            speed = 0.1,
+            loop = false,
+        },
         run = {
             frames = {
                 {x=0,y=16,w=16,h=16},
@@ -84,6 +94,16 @@ function _player_i()
             if(damage_ended) return "idle"
             -- continue damaged state
             return "_damaged"
+        end,
+        _death = function(_e)
+            local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
+            -- delete entity
+            if death_ended then
+                del(entities,_e)
+                load_scene_death()
+            else
+                return "_death"
+            end
         end,
         run = function(_e)
             if _e.position.dx > 0 then

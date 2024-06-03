@@ -1,11 +1,21 @@
-function _ui_d()
-    new_ui()
+function _ui_i()
+    blink_color1 = {
+        colors={7,6,7},
+        ci=1,
+        color=7
+    }
 end
 
-function new_ui()
+function _ui_u()
+    -- update blick colors
+    blink_color1.ci+=1/30
+    if(blink_color1.ci>#blink_color1.colors+1) blink_color1.ci=1
+    blink_color1.color=blink_color1.colors[flr(blink_color1.ci)]
+end
+
+function _ui_d()
     -- reset drawing offset
     camera()
-    palt(0, false)
     rectfill(0, 96, 127, 127, 0)
 
     -- hp bar color
@@ -21,16 +31,18 @@ function new_ui()
     pal(3, hp_pals[hp_pal_index][2])
 
     -- ui background
-    sspr(96, 96, 16, 24, 0, 100, 16, 24, false)
-    for i = 1, 8 do
-        sspr(112, 96, 16, 24, i * 16, 100, 16, 24, false)
+    draw_window_frame(0,100,128,24)
+    palt(0, false)
+    palt(14, true)
+    sspr(112,112,8,8,0,115)
+    for i = 1, 14 do
+        sspr(120, 112,8,8,i*8,115)
     end
-    --sspr(112,96,16,16,64,100,16,16,false)
-    sspr(96, 96, 16, 24, 112, 100, 16, 24, true)
+    sspr(112,112,8,8,120,115,8,8,true)
 
     -- consume hp bar
     local missing_w = (1 - hp_perc) * 123
-    rectfill(126 - missing_w, 116, 126, 118, 0)
+    rectfill(126 - missing_w, 118, 126, 120, 0)
 
     -- inventory
     if player.inventory and player.inventory.visible then
@@ -39,8 +51,6 @@ function new_ui()
         local inv_x, inv_y, inv_s = 64-(square_size*player.inventory.size/2), 98, player.inventory.size
         rectfill(inv_x, inv_y, inv_x + square_size * inv_s, inv_y + square_size, 5)
 
-
-        palt(14, true)
         for i = 1, inv_s do
             local offset_x = square_size * (i - 1)
             local c = i == player.inventory.active_i and 10 or 7
@@ -53,7 +63,6 @@ function new_ui()
         end
         if #player.inventory.items > 0 then
             local offset_x = square_size * (player.inventory.active_i-1)
-            --rect(inv_x + offset_x, inv_y, inv_x + square_size + offset_x, inv_y + square_size, 9)
             rect(inv_x + offset_x + 1, inv_y + 1, inv_x + square_size + offset_x - 1, inv_y + square_size - 1, 9)
         end
     end
@@ -68,70 +77,71 @@ function new_ui()
     palt()
 end
 
-function old_ui()
-    -- background
-    rect(0, 96, 127, 127, 5)
-    rectfill(1, 97, 126, 126, 4)
-
-    -- hp
-    local bar_x, bar_y, bar_w = 13, 100,
-        --62
-        77
-    rectfill(bar_x, bar_y, bar_x + bar_w, bar_y + 8, 6)
-    bar_x += 1
-    bar_y += 1
-    rectfill(bar_x, bar_y, bar_x + 12, bar_y + 6, 5)
-    bar_x += 1
-    bar_y += 1
-    print(player.battle.health, bar_x, bar_y, 6)
-
-    local hp_perc = player.battle.health / player.battle.max_health
-    local hp_w = hp_perc * bar_w -
-        --46--48
-        16
-    local hp_c = ({ 8, 9, 10, 11, 11 })[flr(hp_perc * 4) + 1]
-    bar_x += 13
-    bar_y -= 1
-    rectfill(bar_x, bar_y, bar_x + bar_w - 16, bar_y + 6, 5)
-    rectfill(bar_x, bar_y, bar_x + hp_w, bar_y + 6, hp_c)
-
-    -- inventory
-    -- render inventory
-    if player.inventory and player.inventory.visible then
-        local inv_x, inv_y, inv_s = player.inventory.x, player.inventory.y, player.inventory.size
-        rectfill(inv_x, inv_y, inv_x + 9, inv_y + 9 * inv_s, 5)
-        palt(0, false)
-        palt(14, true)
-        for i = 1, inv_s do
-            local offset_y = 9 * (i - 1)
-            local c = i == player.inventory.active_i and 6 or 10
-            rect(inv_x, inv_y + offset_y, inv_x + 9, inv_y + offset_y + 9, 6)
-            -- render items
-            local item = player.inventory.items[i]
-            if item then
-                sspr(item.sprite.sprite.x, item.sprite.sprite.y, 8, 8, inv_x + 1, inv_y + 1 + offset_y)
+function draw_window_frame(_x,_y,_w,_h)
+    palt(0,false)
+    palt(14,true)
+    local rows, cols = flr(_h/8)-1, flr(_w/8)-1
+    for i=0,rows do
+        for j=0,cols do
+            if i==0 then -- top
+                -- first
+                if(j==0) sspr(112,96,8,8,_x,_y)
+                -- middle
+                if(j>0 and j<cols) sspr(120,96,8,8,_x+j*8,_y)
+                -- last
+                if(j==cols) sspr(112,96,8,8,_x+j*8,_y,8,8,true)
+            
+            elseif i<rows then -- middle
+                -- first
+                if(j==0) sspr(104,96,8,8,_x,_y+i*8,8,8)
+                -- middle
+                if(j>0 and j<cols) sspr(0,96,8,8,_x+j*8,_y+i*8)
+                -- last
+                if(j==cols) sspr(104,96,8,8,_x+j*8,_y+i*8,8,8,true)
+            else -- bottom
+                -- first
+                if(j==0) sspr(112,104,8,8,_x,_y+i*8,8,8)
+                -- middle
+                if(j>0 and j<cols) sspr(120,104,8,8,_x+j*8,_y+i*8,8,8)
+                -- last
+                if(j==cols) sspr(112,104,8,8,_x+j*8,_y+i*8,8,8,true)
             end
         end
     end
-
-    -- bullets
-    local row = 0
-    local nbr_bullets = min(50, 44)
-    for i = 1, nbr_bullets do
-        row = flr(i / 22)
-        local x = (i - 1) % 22 * 5 + 13
-        local y = flr(i / 23) * 7 + 110
-        --sspr(8,8,8,8,7+i*5,113,8,8)
-        sspr(8, 8, 8, 8, x, y, 8, 8)
-    end
     palt()
 
-    -- level
-    bar_x = bar_x - 13 + bar_w
-    bar_y -= 1
-    rectfill(bar_x, bar_y, bar_x + 33, bar_y + 8, 6)
-    bar_x += 1
-    bar_y += 1
-    rectfill(bar_x, bar_y, bar_x + 31, bar_y + 6, 5)
-    print("level:"..level, bar_x+2, bar_y+1,6)
+    -- old --
+
+    -- local middle_h_tiles = (_w/8)-1
+    -- local middle_v_tiles = (_h/8)-1
+    -- local i,j = 1,1
+    
+    -- -- top-left
+    -- sspr(112,96,8,8,_x,_y)
+    -- -- top-middle
+    -- while i<middle_h_tiles do
+    --     sspr(120,96,8,8,_x+i*8,_y)
+    --     i += 1
+    -- end 
+    -- -- top-right
+    -- sspr(112,96,8,8,_x+i*8,_y,8,8,true)
+
+    -- -- middle-sides
+    -- while j<middle_v_tiles do
+    --     sspr(104,96,8,8,_x,_y+j*8,8,8)
+    --     sspr(104,96,8,8,_x+i*8,_y+j*8,8,8,true)
+    --     j += 1
+    -- end 
+
+    -- -- bottom-left
+    -- sspr(112,104,8,8,_x,_y+j*8,8,8)
+    -- -- bottom-middle
+    -- i=1
+    -- while i<middle_h_tiles do
+    --     sspr(120,104,8,8,_x+i*8,_y+j*8,8,8)
+    --     i += 1
+    -- end 
+    -- -- bottom-right
+    -- sspr(112,104,8,8,_x+i*8,_y+j*8,8,8,true)
+
 end

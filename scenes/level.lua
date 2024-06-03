@@ -82,8 +82,9 @@ end
 
 
 function load_scene_level()
-    entitie = {}
+    entities = {}
     level = 1
+    score = 0
     mode = "level"
 
     -- create level
