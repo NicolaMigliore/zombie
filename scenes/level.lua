@@ -18,19 +18,28 @@ end
 
 -- draw level background
 function draw_level()
-    -- rectfill(0,60,1024,60,5)
-    -- rectfill(0,61,1024,128,0)
-    
     palt(0,false)
     palt(14,true)
     map()
     palt()
+end
 
-    
+
+function spawn_all_zombies()
+    local level_size = 1008-102
+    local n = min(flr(10 + level*0.5),50)
+    local zombie_distance = level_size/n
+
+    for i=1,n do
+        local zombie_x = 90 + i*zombie_distance + rnd(20)-10
+        spawn_zombie(zombie_x)
+    end
+
 end
 
 --- generate level entities
 function create_level()
+    level += 1
     -- b - black
     -- w - window
     -- d - door
@@ -67,7 +76,7 @@ function create_level()
         "xxxbwbxxxxxxxxxx|xxxbwbxxxxxxxxxx|bbbbbbxxxxxxxxxx|bwbbwbxxxxxxxxxx|bwbbwbxxxxxxxxxx|bbbbbbxxxbbbbbbb|bbbbwbxxxbwbwbwb|bdbbwbxxxbwbwbwb|bdbbbbfffbbbbbbb|ssssssssssssssss|bbbbbbbbbbbbbbbb|rrrrrrrrrrrrrrrr"
     }
 
-    -- for each screen
+    -- draw chuncks
     for chunk_i=0,63 do
         local chunk = rnd(available_chunks)
         local rows = split(chunk,"|")
@@ -78,26 +87,32 @@ function create_level()
             end
         end
     end
-end
 
+    -- level-end trigger
+    add(entities,new_entity({
+        position = new_position(1016,64,1024,80),
+        --position = new_position(50,64,1024,80),
+        triggers = {new_trigger(1,1,8,16,create_level,"once")}
+    }))
+
+    -- set player position
+    player.position.x = 22
+    player.position.y = 60
+
+    -- spawn zombies
+    spawn_all_zombies()
+end
 
 function load_scene_level()
     entities = {}
-    level = 1
+    level = 0
     score = 0
     mode = "level"
-
-    -- create level
-    create_level()
     
-    -- setup other entities
+    -- setup entities
     _camera_i()
     _player_i()
 
-    -- spawn test zombie
-    spawn_zombie(102)
-    -- spawn_zombie(110)
-    -- spawn_zombie(120)
-    -- spawn_zombie(210)
-    -- spawn_zombie(230)
+    -- create level
+    create_level()
 end
