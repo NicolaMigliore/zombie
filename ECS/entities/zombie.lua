@@ -112,6 +112,8 @@ function spawn_zombie(_x)
         end,
         _death = function(_e)
             local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
+            _e.control.control = nil
+
             -- delete entity
             if death_ended then
                 del(entities,_e)
