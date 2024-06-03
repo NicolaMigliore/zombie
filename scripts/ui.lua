@@ -109,39 +109,4 @@ function draw_window_frame(_x,_y,_w,_h)
         end
     end
     palt()
-
-    -- old --
-
-    -- local middle_h_tiles = (_w/8)-1
-    -- local middle_v_tiles = (_h/8)-1
-    -- local i,j = 1,1
-    
-    -- -- top-left
-    -- sspr(112,96,8,8,_x,_y)
-    -- -- top-middle
-    -- while i<middle_h_tiles do
-    --     sspr(120,96,8,8,_x+i*8,_y)
-    --     i += 1
-    -- end 
-    -- -- top-right
-    -- sspr(112,96,8,8,_x+i*8,_y,8,8,true)
-
-    -- -- middle-sides
-    -- while j<middle_v_tiles do
-    --     sspr(104,96,8,8,_x,_y+j*8,8,8)
-    --     sspr(104,96,8,8,_x+i*8,_y+j*8,8,8,true)
-    --     j += 1
-    -- end 
-
-    -- -- bottom-left
-    -- sspr(112,104,8,8,_x,_y+j*8,8,8)
-    -- -- bottom-middle
-    -- i=1
-    -- while i<middle_h_tiles do
-    --     sspr(120,104,8,8,_x+i*8,_y+j*8,8,8)
-    --     i += 1
-    -- end 
-    -- -- bottom-right
-    -- sspr(112,104,8,8,_x+i*8,_y+j*8,8,8,true)
-
 end
