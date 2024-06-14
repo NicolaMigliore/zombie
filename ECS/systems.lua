@@ -3,6 +3,7 @@
 function create_graphics_system()
     return {
         update = function (options)
+            if(log_systems)log(time().." - running graphics system")
             _bg_color = options.bg_color or 12
             cls(_bg_color)
 
@@ -112,6 +113,7 @@ end
 function create_animation_system()
     return {
         update = function ()
+            if(log_systems)log(time().." - running animation system")
             for e in all(entities) do
                 local anim = e.animation
                 if e.sprite and e.state and anim then
@@ -153,6 +155,7 @@ end
 function create_control_system()
     return {
         update = function()
+            if(log_systems)log(time().." - running constrol system")
             for e in all(entities) do
                 -- update entity movement intention
                 if e.control and e.control.control then
@@ -166,63 +169,75 @@ end
 -- #region physics system
 -- handles entity movement
 function create_physics_system()
-    return {
-        update = function()
-            for e in all(entities) do
-                -- apply gravity
-                -- *does not apply...*
+    local ps = {
+        collisions = {}
+    }
+    ps.update = function()
+        if(log_systems)log(time().." - running physiscs system")
+        --reset collisions
+        ps.collisions = {}
+        for e in all(entities) do
+            -- apply gravity
+            -- *does not apply...*
 
-                -- update entity movement intention
-                if e.position and e.intention then
-                    local spd_x = e.control and e.control.spd_x or 0.5
-                    local direction_x = 0
-                    local can_move_x = true
-                    local new_x = e.position.x
+            -- update entity movement intention
+            if e.position and e.intention then
+                local spd_x = e.control and e.control.spd_x or 0.5
+                local direction_x = 0
+                local can_move_x = true
+                local new_x = e.position.x
 
-                    -- left movement
-                    if e.intention.left then
-                        -- new_x -= 1 * spd_x
-                        direction_x = -1
-                    end
-                    -- right movement
-                    if e.intention.right then
-                        -- new_x += 1 * spd_x
-                        direction_x = 1
-                    end
-                    new_x += direction_x * spd_x
+                -- left movement
+                if e.intention.left then
+                    -- new_x -= 1 * spd_x
+                    direction_x = -1
+                end
+                -- right movement
+                if e.intention.right then
+                    -- new_x += 1 * spd_x
+                    direction_x = 1
+                end
+                new_x += direction_x * spd_x
 
-                    -- check for collisions with other entities
-                    if e.collider and e.collider.is_solid then
-                        for o in all(entities) do
-                            if o != e and o.collider and o.collider.is_solid == true then
-                                local o_bb = o.collider.get_bounding_box(o.position)
-                                local e_bb = e.collider.get_bounding_box(e.position)
-    
-                                e.collider.has_collision = false
-    
-                                -- check horizontal collision
-                                if colliding(
-                                    new_x + e.collider.ox, e_bb.y, e_bb.w, e_bb.h,
-                                    o_bb.x, o_bb.y, o_bb.w, o_bb.h
-                                ) then 
-                                    can_move_x = false
-                                    e.collider.has_collision = true
-                                end
+                -- check for collisions with other entities
+                if e.collider and e.collider.can_collide then
+                    for o in all(entities) do
+                        if o != e and o.collider and o.collider.can_collide == true then
+                            local o_bb = o.collider.get_bounding_box(o.position)
+                            local e_bb = e.collider.get_bounding_box(e.position)
+
+                            e.collider.has_collision = false
+
+                            -- check horizontal collision
+                            if colliding(
+                                new_x + e.collider.ox, e_bb.y, e_bb.w, e_bb.h,
+                                o_bb.x, o_bb.y, o_bb.w, o_bb.h
+                            ) then 
+                                e.collider.has_collision = true
+
+                                -- add entry to collisoin dictionary
+                                if(ps.collisions[e.id] == nil) ps.collisions[e.id] = {}
+                                add(ps.collisions[e.id], o.id)
+
+                                -- if both colliders are solid don't move
+                                if(e.collider.is_solid and o.collider.is_solid) can_move_x = false
                             end
                         end
                     end
-                    -- update entity position
-                    if (can_move_x) e.position.x = new_x
                 end
+                -- update entity position
+                if (can_move_x) e.position.x = new_x
             end
         end
-    }
+    end
+    return ps
 end
 
 -- #region trigger system
 function create_trigger_system()
     return {
         update = function()
+            if(log_systems)log(time().." - running trigger system")
             for e in all(entities) do
                 if e.position and e.triggers and #e.triggers > 0 then
                     for trigger in all(e.triggers) do
@@ -231,11 +246,11 @@ function create_trigger_system()
                         for o in all(entities) do
                             if e != o and o.position and o.collider then
                                 local o_bb = o.collider.get_bounding_box(o.position)
-            
-                                if colliding(
+                                local has_collision = colliding(
                                     e.position.x + trigger.ox, e.position.y + trigger.oy, trigger.w, trigger.h,
                                     o_bb.x, o_bb.y, o_bb.w, o_bb.h
-                                ) then
+                                )
+                                if has_collision then
                                     triggered = true
                                     if trigger.kind == "once" then
                                         trigger.ontrigger(e,o)
@@ -264,6 +279,7 @@ end
 function create_state_system()
     return {
         update = function()
+            if(log_systems)log(time().." - running state system")
             for e in all(entities) do
                 if e.state and e.state.rules then
                     -- if(e.state.previous!=e.state.current)log(e.kind..":"..e.state.previous.."->"..e.state.current)
@@ -282,11 +298,11 @@ end
 function create_battle_system()
     return {
         update = function()
+            if(log_systems)log(time().." - running battle system")
             -- check all entities with hitboxes
             for e in all(entities) do
                 if e.battle and e.state and e.position then
                     -- advance attack cooldown
-                    
                     if(e.battle.cooldown > 0) e.battle.cooldown -= 1
                     
                     -- attack

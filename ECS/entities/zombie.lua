@@ -111,8 +111,12 @@ function spawn_zombie(_x)
             return "_damaged"
         end,
         _death = function(_e)
-            local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
+            -- remove collider, control and intentions
+            _e.collider = nil
             _e.control.control = nil
+            _e.intention.left,_e.intention.left = false,false
+
+            local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
 
             -- delete entity
             if death_ended then
@@ -165,16 +169,15 @@ function spawn_zombie(_x)
     }
     local new_zombie = new_entity({
         kind = "zombie",
+        code = "zombi",
         position = new_position(_x,60,16,16,2),
         sprite = new_sprite({x=48,y=48,w=16,h=16}),
         animation = new_animation(zombie_animations,"idle"),
         state = new_state(zombie_states,"idle"),
         intention = new_intention(),
-        control = new_control({spd_x = 0.2}),
-        -- collider = new_collider(5,3,5,12,{spd_x=0.5}),
+        control = new_control({spd_x = 0.2, control_func=zombie_control}),
+        collider = new_collider(4,3,7,12,{is_solid=false}),
         battle = new_battle(zombie_hitboxes,zombie_hurtboxes,{health=100, damage=5}),
-        triggers = {new_trigger(-68,0,140,10, zombie_onplayerspot, 'once')},
-        collider = new_collider(4,3,7,12,{}),
     })
     add(entities, new_zombie)
 end
@@ -197,12 +200,5 @@ function zombie_control(_e)
     else
         -- attack
         _e.intention.x = true
-    end
-end
-
--- add controll to zombie when it spots the player
-function zombie_onplayerspot(_e,_o)
-    if _o.kind=="player" then
-        _e.control.control = zombie_control
     end
 end

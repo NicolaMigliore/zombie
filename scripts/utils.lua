@@ -13,6 +13,32 @@ function sort(_list, _comparison_f)
     end
 end
 
+-- pad string with zeros
+function pad(v,length)
+	local s="0000000000"..v
+	return sub(s,#s-length+1)
+end
+
+-- generate id
+local random = rnd
+function new_guid(_kind_code)
+    local s = pad(flr(time()),5)
+    local r = pad(flr(random()*100),5)
+    _kind_code = _kind_code or "00000"
+    return s.."-"..r.."-".._kind_code
+end
+
+-- get entity by id
+function get_entity(_id)
+    if (entities == nil or #entities == 0) return nil
+    local i,ent = 1,nil
+    while i < #entities and ent==nil do
+        if(entities[i].id == _id) ent = entities[i]
+        i += 1
+    end
+    return ent
+end
+
 -- converts anything to string, even nested tables
 function tostring(any)
     if type(any) == "function" then

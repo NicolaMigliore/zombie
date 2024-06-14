@@ -9,6 +9,17 @@ function _scene_level_u()
     -- move camera
     gamecamera.position.x = min(896,max(0,player.position.x - 30))
     camera(gamecamera.position.x)
+
+    spawn_timer += 1
+    if spawn_timer == 180 then
+        -- span zombies
+        local nz = min(flr(1 + level*0.5),5)
+        local spawn = rnd(nz)/nz > 0.8 - (level / 50)
+        if(spawn and #entities < 15) spawn_pack(nz) log("spawning zombies")
+
+        -- reset timer
+        spawn_timer = 0
+    end
 end
 
 function _scene_level_d()
@@ -24,17 +35,12 @@ function draw_level()
     palt()
 end
 
-
-function spawn_all_zombies()
-    local level_size = 1008-102
-    local n = min(flr(10 + level*0.5),50)
-    local zombie_distance = level_size/n
-
-    for i=1,n do
-        local zombie_x = 90 + i*zombie_distance + rnd(20)-10
+function spawn_pack(_pack_size)
+    for i=1,_pack_size do
+        local placement_offset = (rnd(50)-25)
+        local zombie_x = player.position.x + placement_offset + sgn(placement_offset)*110
         spawn_zombie(zombie_x)
     end
-
 end
 
 --- generate level entities
@@ -90,23 +96,21 @@ function create_level()
 
     -- level-end trigger
     add(entities,new_entity({
+        kind="level_trigger",
         position = new_position(1016,64,1024,80),
-        --position = new_position(50,64,1024,80),
-        triggers = {new_trigger(1,1,8,16,create_level,"once")}
+        triggers = {new_trigger(1,1,8,16,function(_e,_o) if(_o.kind == "player") create_level() end,"always")}
     }))
 
     -- set player position
     player.position.x = 22
     player.position.y = 60
-
-    -- spawn zombies
-    spawn_all_zombies()
 end
 
 function load_scene_level()
     entities = {}
     level = 0
     score = 0
+    spawn_timer = 0
     mode = "level"
     
     -- setup entities

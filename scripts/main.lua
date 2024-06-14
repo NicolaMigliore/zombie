@@ -18,6 +18,7 @@ function _init()
     -- debugging
     show_colliders = false
     show_hitboxes = false
+    log_systems = false
 
     cam_x = 0
 

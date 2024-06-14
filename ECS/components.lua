@@ -110,7 +110,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
         health =  health,
         max_health = health,
         cd_time = _opts.cd_time or 180,
-        cooldown = _opts.cd_time or 180,
+        cooldown = _opts.cd_time or 0,
         damage = _opts.damage or 20,
         get_box = function(_pos,_box)
             --- @param _pos: poistion component
@@ -137,10 +137,11 @@ end
 --  - mass: the mass of the entity
 function new_collider(_ox,_oy,_w,_h,_opts)
     -- calculate defaults
-    local is_solid,gravity,mass = true, true, 1
+    local is_solid,gravity,mass,can_collide = true, true, 1, true
     if (_opts.is_solid != nil) is_solid = _opts.is_solid
     if (_opts.gravity != nil) gravity = _opts.gravity
     if (_opts.mass != nil) mass = _opts.mass
+    if (_opts.can_collide != nil) can_collide = _opts.can_collide
 
     local c = {
         ox = _ox,
@@ -157,6 +158,7 @@ function new_collider(_ox,_oy,_w,_h,_opts)
         is_falling = gravity,
         mass = mass,
         is_solid = is_solid,
+        can_collide = can_collide,
     }
     c.get_bounding_box = function(_pos)
         --- @param _pos: poistion component
@@ -211,6 +213,7 @@ end
 -- #region create entity ---
 function new_entity(_opts)
     local e = {
+        id = new_guid(_opts.code),
         kind = _opts.kind,
         position = _opts.position,
         sprite = _opts.sprite,

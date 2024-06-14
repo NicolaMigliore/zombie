@@ -210,8 +210,14 @@ function _player_i()
             
             local anim_perch = _e.animation.anim_i/#_e.animation.animations["shoot"].frames
             -- shoot the buller
-            if(anim_perch == 0.8 ) spawn_bullet(_e.position.x, _e.position.dx)
-
+            if anim_perch == 0.8 then
+                if _e.inventory.bullets > 0 then
+                    spawn_bullet(_e.position.x, _e.position.dx)
+                    _e.inventory.bullets -= 1
+                else
+                    -- todo: fx for missing bullets
+                end
+            end
             -- keep punching
             return "shoot"
         end,
@@ -234,6 +240,7 @@ function _player_i()
 
     player = new_entity({
         kind = "player",
+        code = "playe",
         position = new_position(22,60,16,16,2),
         sprite = new_sprite({x=16,y=0,w=16,h=16}),
         animation = new_animation(player_animation,"idle"),
@@ -294,6 +301,9 @@ function player_contol(_e)
         _e.inventory.active_i -= 1
         if(_e.inventory.active_i<1) _e.inventory.active_i = #_e.inventory.items
     end
+
+    -- debug inventory
+    if(btn(_e.control.up) and btn(_e.control.down)) debug_items()
 end
 
 function get_player_attack_state(_e)
@@ -310,23 +320,6 @@ function get_player_attack_state(_e)
 end
 
 function loot()
-    ---
-    local gloves = new_entity({
-        kind = "gloves",
-        sprite = new_sprite({x=0,y=104,w=8,h=8}),
-    })
-    local crowbar = new_entity({
-        kind = "crowbar",
-        sprite = new_sprite({x=0,y=8,w=8,h=8}),
-    })
-    local gun = new_entity({
-        kind = "gun",
-        sprite = new_sprite({x=8,y=0,w=8,h=8}),
-    })
-    add(player.inventory.items,gloves) player.inventory.active_i = 1
-    add(player.inventory.items,crowbar) player.inventory.active_i = 2
-    add(player.inventory.items,gun) player.inventory.active_i = 3
-    ---
     local r = rnd()
     if(r > 0.1) return
 
@@ -351,4 +344,25 @@ function loot()
     if(nbr_items==2) add(player.inventory.items,gun) player.inventory.active_i = 3
     if(nbr_items>2) player.inventory.bullets += flr(rnd()*5)
     
+end
+
+function debug_items()
+    local gloves = new_entity({
+        kind = "gloves",
+        sprite = new_sprite({x=0,y=104,w=8,h=8}),
+    })
+    local crowbar = new_entity({
+        kind = "crowbar",
+        sprite = new_sprite({x=0,y=8,w=8,h=8}),
+    })
+    local gun = new_entity({
+        kind = "gun",
+        sprite = new_sprite({x=8,y=0,w=8,h=8}),
+    })
+
+    local nbr_items = #player.inventory.items
+    add(player.inventory.items,gloves) player.inventory.active_i = 1
+    add(player.inventory.items,crowbar) player.inventory.active_i = 2
+    add(player.inventory.items,gun) player.inventory.active_i = 3
+    player.inventory.bullets += 5
 end
