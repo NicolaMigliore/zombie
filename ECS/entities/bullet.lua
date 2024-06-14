@@ -42,7 +42,7 @@ function spawn_bullet(_x,_dir)
         intention = new_intention(),
         control = new_control({spd_x = bullet_speed, control_func = bullet_control}),
         state = new_state(bullet_states, "travel"),
-        battle = new_battle(bullet_hitboxes,{},{health=100, damage=100}),
+        battle = new_battle(bullet_hitboxes,{},{health=100, damage=70}),
         collider = new_collider(0,0,2,1,{is_solid=false}),
     })
     add(entities, new_bullet)

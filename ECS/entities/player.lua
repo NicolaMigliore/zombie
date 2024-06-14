@@ -310,10 +310,10 @@ function get_player_attack_state(_e)
     local equipped_item = _e.inventory.items[_e.inventory.active_i]
     -- hand
     if(equipped_item == nil) return _e.position.dx > 0 and "punch_right" or "punch_left"
-    if(equipped_item.kind == "gloves") return _e.position.dx > 0 and "punch_right" or "punch_left"
+    if(equipped_item.kind == "gloves")_e.battle.damage = 40 return _e.position.dx > 0 and "punch_right" or "punch_left"
 
     -- crowbar
-    if(equipped_item.kind == "crowbar") return _e.position.dx > 0 and "swing_right" or "swing_left"
+    if(equipped_item.kind == "crowbar")_e.battle.damage = 70 return _e.position.dx > 0 and "swing_right" or "swing_left"
 
     -- gun
     if(equipped_item.kind == "gun") return "shoot"
