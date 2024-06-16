@@ -262,7 +262,6 @@ function _player_i()
         inventory = new_inventory(3,true,50,96,{})
     })
     add(entities,player)
-    loot()
 end
 
 function player_contol(_e)
@@ -360,7 +359,6 @@ function debug_items()
         sprite = new_sprite({x=8,y=0,w=8,h=8}),
     })
 
-    local nbr_items = #player.inventory.items
     add(player.inventory.items,gloves) player.inventory.active_i = 1
     add(player.inventory.items,crowbar) player.inventory.active_i = 2
     add(player.inventory.items,gun) player.inventory.active_i = 3
