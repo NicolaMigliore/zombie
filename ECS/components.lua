@@ -228,3 +228,22 @@ function new_entity(_opts)
     }
     return e
 end
+
+-- #region create particle --
+function new_particle(_kind,_pos,_dx,_dy,_max_age,_colors,_max_size,_opts)
+    local p = {
+        position = _pos,
+        dx=_dx,
+        dy=_dy,
+        kind=_kind,
+        age=0,
+        max_age=_max_age,
+        colors=_colors,
+        color=_colors[1],
+        max_size=_max_size,
+        has_gravity=_opts.has_gravity or false,
+        has_rotation=_opts.has_rotation or false,
+        sprite=_opts.sprite or 0,
+    }
+    return p
+end

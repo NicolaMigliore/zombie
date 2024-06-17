@@ -11,6 +11,7 @@ function _init()
     trigger_system = create_trigger_system()
     state_system = create_state_system()
     battle_system = create_battle_system()
+    particle_system = create_particle_system()
 
     -- setup scene
     load_scene_level()

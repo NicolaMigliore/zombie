@@ -5,6 +5,7 @@ function _scene_level_u()
     trigger_system.update()
     state_system.update()
     battle_system.update()
+    particle_system.update()
 
     -- move camera
     gamecamera.position.x = min(896,max(0,player.position.x - 30))
@@ -13,9 +14,9 @@ function _scene_level_u()
     spawn_timer += 1
     if spawn_timer == 180 then
         -- span zombies
-        local nz = min(flr(1 + level*0.5),5)
+        local nz = min(flr(2 + level*0.5),5)
         local spawn = rnd(nz)/nz > 0.8 - (level / 50)
-        if(spawn and #entities < 15) spawn_pack(nz) log("spawning zombies")
+        if(spawn and #entities < 15) spawn_pack(nz)
 
         -- reset timer
         spawn_timer = 0
@@ -46,6 +47,8 @@ end
 --- generate level entities
 function create_level()
     level += 1
+    particles = {}
+
     -- b - black
     -- w - window
     -- d - door

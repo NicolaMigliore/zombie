@@ -98,7 +98,7 @@ function spawn_zombie(_x)
             if(_e.intention.right) _e.position.dx=1 return "run"
 
             -- attack
-            if(_e.intention.x) return _e.position.dx > 0 and "attack_right" or "attack_left"
+            if(_e.intention.x) sfx(14) return _e.position.dx > 0 and "attack_right" or "attack_left"
 
             -- idle
             return "idle"
@@ -135,7 +135,7 @@ function spawn_zombie(_x)
             end
 
             -- attack
-            if(_e.intention.x) return _e.position.dx > 0 and "attack_right" or "attack_left"
+            if(_e.intention.x) sfx(14) return _e.position.dx > 0 and "attack_right" or "attack_left"
             -- keep moving
             if(_e.intention.right) _e.position.dx = 1 return "run"
             if(_e.intention.left) _e.position.dx = -1 return "run"
@@ -189,10 +189,11 @@ function zombie_control(_e)
     _e.intention.x = false
 
     local is_attacking = _e.state.current == "attack_right" or _e.state.current == "attack_left"
+    local is_damaged = _e.state.current == "_damaged" or _e.state.current == "_death"
     local distance = (_e.position.x+8) - (player.position.x+8)
     -- zombies always know where the player is
 
-    if abs(distance) > 7 and not is_attacking then
+    if abs(distance) > 7 and not is_attacking and not is_damaged then
         -- walk
         local direction = sgn(distance)
         if(direction==-1) _e.intention.right = true

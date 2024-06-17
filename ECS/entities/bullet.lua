@@ -21,7 +21,7 @@ function spawn_bullet(_x,_dir)
             return "travel"
         end,
         hit = function(_e)
-            -- todo: add blood particles 
+            sfx(14)
             return "_death"
         end,
         _death = function(_e)

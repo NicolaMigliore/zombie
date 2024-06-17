@@ -1,5 +1,5 @@
 function _player_i()
-    -- #region player entity
+    -- #region player animation
     local player_animation = {
         idle = {
             frames = {
@@ -112,6 +112,8 @@ function _player_i()
             loop = false,
         },
     }
+
+    -- #region player state
     local player_states = {
         idle = function(_e)
             -- move player
@@ -129,6 +131,7 @@ function _player_i()
             return "idle"
         end,
         _damaged = function(_e)
+            spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
             -- idle
             local damage_ended = _e.animation.anim_i > #_e.animation.animations["_damaged"].frames
             if(damage_ended) return "idle"
@@ -136,6 +139,7 @@ function _player_i()
             return "_damaged"
         end,
         _death = function(_e)
+            spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
             local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
             -- delete entity
             if death_ended then
@@ -222,6 +226,7 @@ function _player_i()
             return "shoot"
         end,
     }
+    -- #region player battle
     local player_hurtboxes = {
         idle = { ox=5, oy=3, w=5, h=12 },
         run = { ox=5, oy=3, w=5, h=12 },
@@ -234,10 +239,11 @@ function _player_i()
     local player_hitboxes = {
         punch_left = { ox=0, oy=8, w=3, h=4 },
         punch_right = { ox=12, oy=8, w=3, h=4 },
-        swing_left = { ox=-2, oy=8, w=5, h=4 },
-        swing_right = { ox=12, oy=8, w=5, h=4 },
+        swing_left = { ox=-4, oy=8, w=7, h=4 },
+        swing_right = { ox=14, oy=8, w=7, h=4 },
     }
 
+    -- #region player entity
     player = new_entity({
         kind = "player",
         code = "playe",
@@ -264,6 +270,7 @@ function _player_i()
     add(entities,player)
 end
 
+-- #region player control
 function player_contol(_e)
     -- player attack
     _e.intention.x = btnp(_e.control.x)
@@ -286,9 +293,8 @@ function player_contol(_e)
         local is_interacting = btnp(_e.control.o)
         _e.intention.o = is_interacting
         if is_interacting then
-            loot()
+            loot((cel_x*8)+4, 64)
             mset(cel_x,8,200)
-            -- todo: add particles
         end
     end
 
@@ -308,22 +314,42 @@ end
 function get_player_attack_state(_e)
     local equipped_item = _e.inventory.items[_e.inventory.active_i]
     -- hand
-    if(equipped_item == nil) return _e.position.dx > 0 and "punch_right" or "punch_left"
-    if(equipped_item.kind == "gloves")_e.battle.damage = 40 return _e.position.dx > 0 and "punch_right" or "punch_left"
+    if(equipped_item == nil) sfx(14) return _e.position.dx > 0 and "punch_right" or "punch_left"
+    if(equipped_item.kind == "gloves")_e.battle.damage = 40 sfx(14) return _e.position.dx > 0 and "punch_right" or "punch_left"
 
     -- crowbar
-    if(equipped_item.kind == "crowbar")_e.battle.damage = 70 return _e.position.dx > 0 and "swing_right" or "swing_left"
+    if(equipped_item.kind == "crowbar")_e.battle.damage = 70 sfx(15) return _e.position.dx > 0 and "swing_right" or "swing_left"
 
     -- gun
-    if(equipped_item.kind == "gun") return "shoot"
+    if(equipped_item.kind == "gun") sfx(16) return "shoot"
 end
 
-function loot()
+-- #region loot
+function loot(_particle_x,_particle_y)
     local r = rnd()
-    if(r > 0.1) return
+    -- add loot particles 
+    spawn_smoke(
+        _particle_x+2,
+        _particle_y,
+        {6,7,7},
+        { angle = 0.75, max_size = 1.5+rnd(2), max_age = 30 }
+    )
+    spawn_smoke(
+        _particle_x-2,
+        _particle_y,
+        {6,7,7},
+        { angle = 0.25, max_size = 1.5+rnd(2), max_age = 30 }
+    )
 
-    if(r > 0.03) player.battle.health = min(player.battle.health+10, 200) return
-    
+    if(r > 0.1) sfx(12) return
+
+    if r > 0.03 then
+        player.battle.health = min(player.battle.health+10, 200)
+        sfx(11)
+        spawn_shatter(_particle_x,_particle_y,{3,11,11,7},{})
+        return
+    end
+
     local gloves = new_entity({
         kind = "gloves",
         sprite = new_sprite({x=0,y=104,w=8,h=8}),
@@ -342,7 +368,10 @@ function loot()
     if(nbr_items==1) add(player.inventory.items,crowbar) player.inventory.active_i = 2
     if(nbr_items==2) add(player.inventory.items,gun) player.inventory.active_i = 3
     if(nbr_items>2) player.inventory.bullets += flr(rnd()*5)
-    
+
+    -- add found particles
+    sfx(13)
+    spawn_shatter(_particle_x,_particle_y,{9,10,7},{})
 end
 
 function debug_items()

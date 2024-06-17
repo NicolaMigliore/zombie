@@ -104,6 +104,17 @@ function create_graphics_system()
                     end
                 end
             end
+
+            -- draw particles
+            for p in all(particles) do
+                if p.kind == "pixel" or p.kind == "gravity_pixel" or p.kid == "ash" then
+                    pset(p.position.x,p.position.y,p.color)
+                elseif p.kind == "smoke" then
+                    circfill(p.position.x,p.position.y,p.position.w,p.color)
+                elseif p.kind == "sprite" then
+                    spr(p.sprite,p.position.x,p.position.y,p.position.w,p.position.h)
+                end
+            end
         end
     }
 end
@@ -317,6 +328,7 @@ function create_battle_system()
                                     o.battle.health -= e.battle.damage
                                     o.state.previous = o.state.current
                                     o.state.current = "_damaged"
+                                    spawn_shatter(o.position.x+8,o.position.y+8,{8,8,2},{})
                                     if o.battle.health<1 then
                                         o.state.current = "_death"
                                     end
@@ -328,6 +340,43 @@ function create_battle_system()
             end
         end
     }
+end
+
+-- #region particle system
+-- handles particle animations
+function create_particle_system()
+    local ps = {}
+    ps.update = function()
+        for p in all(particles) do
+            p.age+=1
+            if (p.age >= p.max_age) del(particles,p)
+
+            -- age of particle from 0 to 1
+            local age_perc = p.age/p.max_age
+
+            -- change color
+            if #p.colors > 1 then
+                -- color index based on age
+                local color_i = flr(age_perc * #p.colors)+1
+                p.color=p.colors[color_i]
+            end
+
+            -- apply gravity
+            if p.has_gravity then
+                p.dy+=0.05
+            end
+
+            --shrink (based on position.w)
+            if p.kind=="smoke" then
+                p.position.w=(1-age_perc)*p.max_size
+            end
+
+            --move particle
+            p.position.x+=p.dx
+            p.position.y+=p.dy
+        end
+    end
+    return ps
 end
 
 function z_comparison(_a,_b)
