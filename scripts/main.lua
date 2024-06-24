@@ -24,6 +24,7 @@ function _init()
     cam_x = 0
 
     _ui_i()
+    _highscore_i()
 end
 
 function _update60()
@@ -32,6 +33,8 @@ function _update60()
         _scene_level_u()
     elseif mode == "death" then
         _scene_death_u()
+    elseif mode == "highscore" then
+        _highscore_u()
     end
     _ui_u()
 end
@@ -42,6 +45,7 @@ function _draw()
         _scene_level_d()
     elseif mode == "death" then
         _scene_death_d()
+    elseif mode == "highscore" then
+        _highscore_d()
     end
-    -- if(gamecamera) camera(gamecamera.position.x)
 end

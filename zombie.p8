@@ -12,6 +12,7 @@ __lua__
 #include scenes/title.lua
 #include scenes/level.lua
 #include scenes/death.lua
+#include scenes/highscore.lua
 
 --ecs
 #include ecs/components.lua

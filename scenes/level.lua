@@ -47,6 +47,7 @@ end
 --- generate level entities
 function create_level()
     level += 1
+    score += 10
     particles = {}
 
     -- b - black
