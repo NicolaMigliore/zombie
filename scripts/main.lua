@@ -14,7 +14,7 @@ function _init()
     particle_system = create_particle_system()
 
     -- setup scene
-    load_scene_level()
+    load_scene_title()
 
     -- debugging
     show_colliders = false
@@ -24,28 +24,29 @@ function _init()
     cam_x = 0
 
     _ui_i()
-    _highscore_i()
+    _scene_highscore_i()
+
+    -- update functions
+    upd = {
+        title = _scene_title_u,
+        level = _scene_level_u,
+        death = _scene_death_u,
+        highscore = _scene_highscore_u
+    }
+    -- draw functions
+    drw = {
+        title = _scene_title_d,
+        level = _scene_level_d,
+        death = _scene_death_d,
+        highscore = _scene_highscore_d
+    }
 end
 
 function _update60()
-    if mode == "title" then
-    elseif mode == "level" then 
-        _scene_level_u()
-    elseif mode == "death" then
-        _scene_death_u()
-    elseif mode == "highscore" then
-        _highscore_u()
-    end
+    upd[mode]()
     _ui_u()
 end
 
 function _draw()
-    if mode == "title" then
-    elseif mode == "level" then 
-        _scene_level_d()
-    elseif mode == "death" then
-        _scene_death_d()
-    elseif mode == "highscore" then
-        _highscore_d()
-    end
+    drw[mode]()
 end

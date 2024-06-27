@@ -1,4 +1,4 @@
-function _highscore_i()
+function _scene_highscore_i()
 	cartdata("jack_vs_zombies_1")
 	hscores = {}
 	load_hs()
@@ -7,7 +7,7 @@ function _highscore_i()
 	initials = { 1, 1, 1 }
 	initials_i = 1
 end
-function _highscore_u()
+function _scene_highscore_u()
 	if score > 0 then 
 		-- input initials
 		if btnp(➡️) then
@@ -44,7 +44,7 @@ function _highscore_u()
 		if (btnp(❎)) add_hs(initials[1],initials[2],initials[3],score) sfx(17) load_scene_level()
 	end
 end
-function _highscore_d()
+function _scene_highscore_d()
 	camera()
 	draw_window_frame(10, 7, 107, 90)
 
@@ -69,7 +69,7 @@ function _highscore_d()
 		--initials input 
 		for i=1,#initials do
 			local ini_c=7
-			if(i==initials_i) ini_c = 8--blink_c
+			if(i==initials_i) ini_c = 8
 			print(hs_chars[initials[i]],42+(i*4),66,ini_c)
 			print(score,60,66,7)
 		end
