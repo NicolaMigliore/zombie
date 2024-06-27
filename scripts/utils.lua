@@ -67,3 +67,13 @@ function tostring(any)
     return "unkown"
     -- should never show
 end
+
+function str2frames(_s)
+    local frames = {}
+    for fs in all(split(_s,"|")) do
+        -- get sprite parts
+        local sp = split(fs,",")
+        add(frames,{x=sp[1],y=sp[2],w=sp[3],h=sp[4]})
+    end
+    return frames
+end
