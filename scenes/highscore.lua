@@ -42,6 +42,10 @@ function _scene_highscore_u()
 
 		-- save score
 		if (btnp(❎)) add_hs(initials[1],initials[2],initials[3],score) sfx(17) load_scene_level()
+		if (btnp(🅾️)) add_hs(initials[1],initials[2],initials[3],score) sfx(17) load_scene_title()
+	else
+		-- go to title
+		if (btnp(🅾️)) load_scene_title()
 	end
 end
 function _scene_highscore_d()
@@ -76,6 +80,7 @@ function _scene_highscore_d()
 
 		print("❎ to restart",36,74,blink_color1.color)
 	end
+	print("🅾️ to title",36,80,blink_color1.color)
 end
 
 function reset_hs()
