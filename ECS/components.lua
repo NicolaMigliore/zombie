@@ -42,7 +42,18 @@ function new_animation(_animations,_active_anim,_set_anim,_timer)
         anim_i = 1,
     }
     a.set_animation = _set_anim
+    a.add_animation = function (_anim_name,_frame_str,_speed,_loop)
+        a.animations[_anim_name] = {
+            frames = str2frames(_frame_str),
+            speed = _speed,
+            loop = _loop or false
+        }
+    end
     return a
+end
+-- check if the given animation has ended
+function check_animation_ended(_e, _anim_name)
+    return _e.animation.anim_i > #_e.animation.animations[_anim_name].frames
 end
 
 -- #region state component ---

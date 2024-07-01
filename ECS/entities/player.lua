@@ -1,11 +1,6 @@
 function _player_i()
     -- #region player animation
     local player_animation = {
-        idle = {
-            frames = str2frames("32,0,16,16|32,0,16,16|32,0,16,16|48,0,16,16|16,0,16,16|32,0,16,16"),
-            speed = 0.05,
-            loop = true,
-        },
         _damaged = {
             frames = {
                 {x=32,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
@@ -17,36 +12,17 @@ function _player_i()
             },
             speed = 0.5
         },
-        _death = {
-            frames = str2frames("48,112,8,8|56,112,8,8|48,120,8,8|56,120,8,8"),
-            speed = 0.1
-        },
-        run = {
-            frames = str2frames("0,16,16,16|16,16,16,16|32,16,16,16|48,16,16,16|64,16,16,16|80,16,16,16|96,16,16,16|112,16,16,16"),
-            speed = 0.15,
-            loop = true,
-        },
-        punch_right = {
-            frames = str2frames("16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16"),
-            speed = 0.2
-        },
-        punch_left = {
-            frames = str2frames("16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16"),
-            speed = 0.2
-        },
-        swing_right = {
-            frames = str2frames("16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16"),
-            speed = 0.2
-        },
-        swing_left = {
-            frames = str2frames("16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16"),
-            speed = 0.2
-        },
-        shoot = {
-            frames = str2frames("16,0,16,16|64,0,16,16|80,0,16,16|96,0,16,16|112,0,16,16"),
-            speed = 0.2
-        },
     }
+    local animation_comp = new_animation(player_animation,"idle")
+    animation_comp.add_animation("idle","32,0,16,16|32,0,16,16|32,0,16,16|48,0,16,16|16,0,16,16|32,0,16,16",0.05,true)
+    animation_comp.add_animation("_death","48,112,8,8|56,112,8,8|48,120,8,8|56,120,8,8",0.1)
+    animation_comp.add_animation("run","0,16,16,16|16,16,16,16|32,16,16,16|48,16,16,16|64,16,16,16|80,16,16,16|96,16,16,16|112,16,16,16",0.15,true)
+    animation_comp.add_animation("punch_right","16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16",0.2)
+    animation_comp.add_animation("punch_left","16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16",0.2)
+    animation_comp.add_animation("swing_right","16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16",0.2)
+    animation_comp.add_animation("swing_left","16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16",0.2)
+    animation_comp.add_animation("shoot","16,0,16,16|64,0,16,16|80,0,16,16|96,0,16,16|112,0,16,16",0.2)
+
 
     -- #region player state
     local player_states = {
@@ -68,14 +44,14 @@ function _player_i()
         _damaged = function(_e)
             spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
             -- idle
-            local damage_ended = _e.animation.anim_i > #_e.animation.animations["_damaged"].frames
+            local damage_ended = check_animation_ended(_e,"_damaged")
             if(damage_ended) return "idle"
             -- continue damaged state
             return "_damaged"
         end,
         _death = function(_e)
             spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
-            local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
+            local death_ended = check_animation_ended(_e,"_death")
             -- delete entity
             if death_ended then
                 del(entities,_e)
@@ -106,7 +82,7 @@ function _player_i()
             return "idle"
         end,
         punch_right = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_right"].frames
+            local attack_ended = check_animation_ended(_e,"punch_right")
 
             -- idle
             if(attack_ended) return "idle"
@@ -115,7 +91,7 @@ function _player_i()
             return "punch_right"
         end,
         punch_left = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["punch_left"].frames
+            local attack_ended = check_animation_ended(_e,"punch_left")
 
             -- idle
             if(attack_ended) return "idle"
@@ -124,7 +100,7 @@ function _player_i()
             return "punch_left"
         end,
         swing_right = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["swing_right"].frames
+            local attack_ended = check_animation_ended(_e,"swing_right")
 
             -- idle
             if(attack_ended) return "idle"
@@ -133,7 +109,7 @@ function _player_i()
             return "swing_right"
         end,
         swing_left = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["swing_left"].frames
+            local attack_ended = check_animation_ended(_e,"swing_left")
 
             -- idle
             if(attack_ended) return "idle"
@@ -142,7 +118,7 @@ function _player_i()
             return "swing_left"
         end,
         shoot = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["shoot"].frames
+            local attack_ended = check_animation_ended(_e,"shoot")
             
             -- idle
             if(attack_ended) return "idle"
@@ -173,7 +149,7 @@ function _player_i()
     }
     local player_hitboxes = {
         punch_left = { ox=0, oy=8, w=3, h=4 },
-        punch_right = { ox=12, oy=8, w=3, h=4 },
+        punch_right = { ox=12, oy=4, w=8, h=8 },--{ ox=12, oy=8, w=3, h=4 },
         swing_left = { ox=-4, oy=8, w=7, h=4 },
         swing_right = { ox=14, oy=8, w=7, h=4 },
     }
@@ -184,7 +160,7 @@ function _player_i()
         code = "playe",
         position = new_position(22,60,16,16,2),
         sprite = new_sprite({x=16,y=0,w=16,h=16}),
-        animation = new_animation(player_animation,"idle"),
+        animation = animation_comp,
         control = new_control({
             left = ⬅️,
             right = ➡️,
@@ -243,7 +219,7 @@ function player_contol(_e)
     end
 
     -- debug inventory
-    if(btn(_e.control.up) and btn(_e.control.down)) debug_items()
+    -- if(btn(_e.control.up) and btn(_e.control.down)) debug_items()
 end
 
 function get_player_attack_state(_e)

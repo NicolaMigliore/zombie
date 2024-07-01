@@ -1,10 +1,6 @@
 function spawn_zombie(_x)
+    -- #region zombie aniamtion
     local zombie_animations = {
-        idle = {
-            frames = str2frames("48,48,16,16|48,48,16,16|48,48,16,16|64,48,16,16|80,48,16,16|96,48,16,16|48,48,16,16"),
-            speed = 0.1,
-            loop = true,
-        },
         _damaged = {
             frames = {
                 {x=80,y=48,w=16,h=16,pal_rep={{3,7},{2,7},{5,7},{10,5},{8,5}}},
@@ -19,27 +15,15 @@ function spawn_zombie(_x)
             speed = 0.3,
             loop = true,
         },
-        _death = {
-            frames = str2frames("0,64,16,16|48,80,16,16|64,80,16,16|80,80,16,16|96,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16"),
-            speed = 0.1,
-            loop = false,
-        },
-        run = {
-            frames = str2frames("112,48,16,16|0,64,16,16|16,64,16,16|32,64,16,16|48,64,16,16|64,64,16,16"),
-            speed = 0.1,
-            loop = true,
-        },
-        attack_right = {
-            frames = str2frames("48,48,16,16|80,64,16,16|96,64,16,16|112,64,16,16|0,80,16,16|16,80,16,16|32,80,16,16|32,80,16,16"),
-            speed = 0.5,
-            loop = false,
-        },
-        attack_left = {
-            frames = str2frames("48,48,16,16|80,64,16,16|96,64,16,16|112,64,16,16|0,80,16,16|16,80,16,16|32,80,16,16|32,80,16,16|96,64,16,16|96,64,16,16|96,64,16,16|80,64,16,16|80,64,16,16|80,64,16,16"),
-            speed = 0.5,
-            loop = false,
-        },
     }
+    local animation_comp = new_animation(zombie_animations,"idle")
+    animation_comp.add_animation("idle","48,48,16,16|48,48,16,16|48,48,16,16|64,48,16,16|80,48,16,16|96,48,16,16|48,48,16,16",0.1,true)
+    animation_comp.add_animation("_death","0,64,16,16|48,80,16,16|64,80,16,16|80,80,16,16|96,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16|112,80,16,16",0.1)
+    animation_comp.add_animation("run","112,48,16,16|0,64,16,16|16,64,16,16|32,64,16,16|48,64,16,16|64,64,16,16",0.1,true)
+    animation_comp.add_animation("attack_right","48,48,16,16|80,64,16,16|80,64,16,16|96,64,16,16|96,64,16,16|112,64,16,16|0,80,16,16|16,80,16,16|32,80,16,16|32,80,16,16|32,80,16,16|32,80,16,16",0.5)
+    animation_comp.add_animation("attack_left","48,48,16,16|80,64,16,16|80,64,16,16|96,64,16,16|96,64,16,16|112,64,16,16|0,80,16,16|16,80,16,16|32,80,16,16|32,80,16,16|32,80,16,16|32,80,16,16",0.5)
+
+    -- #region zombie state
     local zombie_states = {
         idle = function(_e)
             -- move zombie
@@ -54,7 +38,7 @@ function spawn_zombie(_x)
         end,
         _damaged = function(_e)
             -- idle
-            local damage_ended = _e.animation.anim_i > #_e.animation.animations["_damaged"].frames
+            local damage_ended = check_animation_ended(_e,"_damaged")
             if(damage_ended) return "idle"
             -- continue damaged state
             return "_damaged"
@@ -65,7 +49,7 @@ function spawn_zombie(_x)
             _e.control.control = nil
             _e.intention.left,_e.intention.left = false,false
 
-            local death_ended = _e.animation.anim_i > #_e.animation.animations["_death"].frames
+            local death_ended = check_animation_ended(_e,"_death")
 
             -- delete entity
             if death_ended then
@@ -92,20 +76,21 @@ function spawn_zombie(_x)
             return "idle"
         end,
         attack_left = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["attack_left"].frames
+            local attack_ended = check_animation_ended(_e,"attack_left")
             -- idle
             if(attack_ended) return "idle"
             -- keep punching
             return "attack_left"
         end,
         attack_right = function(_e)
-            local attack_ended = _e.animation.anim_i > #_e.animation.animations["attack_right"].frames
+            local attack_ended = check_animation_ended(_e,"attack_right")
             -- idle
             if(attack_ended) return "idle"
             -- keep punching
             return "attack_right"
         end,  
     }
+    -- #region zombie battle
     local zombie_hurtboxes = {
         idle = { ox=4, oy=3, w=7, h=12 },
         run = { ox=4, oy=3, w=7, h=12 },
@@ -116,12 +101,13 @@ function spawn_zombie(_x)
         attack_left = { ox=0, oy=8, w=3, h=4 },
         attack_right = { ox=12, oy=8, w=3, h=4 }
     }
+    -- #region zombie entity
     local new_zombie = new_entity({
         kind = "zombie",
         code = "zombi",
         position = new_position(_x,60,16,16,2),
         sprite = new_sprite({x=48,y=48,w=16,h=16}),
-        animation = new_animation(zombie_animations,"idle"),
+        animation = animation_comp,
         state = new_state(zombie_states,"idle"),
         intention = new_intention(),
         control = new_control({spd_x = 0.2, control_func=zombie_control}),
