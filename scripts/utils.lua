@@ -1,5 +1,5 @@
 function log(_text)
-    printh(_text, "zombie/log")
+    printh(_text, "jack_vs_zombies/log")
 end
 
 --- sort the elements

@@ -1,5 +1,10 @@
 -- #region graphics system
 -- handles game graphics
+function foreach_entity(_func)
+    for e in all(entities) do
+        _func(e)
+    end
+end
 function create_graphics_system()
     return {
         update = function (options)
@@ -12,7 +17,7 @@ function create_graphics_system()
             
             -- draw entities
             sort(entities, z_comparison)
-            for e in all(entities) do
+            foreach_entity(function(e)
                 local cur_pos = e.position
                 -- render entity
                 if e.sprite and cur_pos then
@@ -30,11 +35,14 @@ function create_graphics_system()
                         cur_sprite.h,
                         cur_pos.x,
                         cur_pos.y,
-                        cur_pos.w,
-                        cur_pos.h,
+                        cur_sprite.w,
+                        cur_sprite.h,
                         e.sprite.flip_x,
                         e.sprite.flip_y
                     )
+                    -- -- todo: remove
+                    -- if(e.kind=="player" and e.state.current=="punch_right")sspr(72,112,8,8,player.position.x+12,player.position.y+4)
+                    -- --
                     pal()
                 end
 
@@ -103,7 +111,7 @@ function create_graphics_system()
                         print("🅾️",cel_x*8,56,9)
                     end
                 end
-            end
+            end)
 
             -- draw particles
             for p in all(particles) do
@@ -125,7 +133,7 @@ function create_animation_system()
     return {
         update = function ()
             if(log_systems)log(time().." - running animation system")
-            for e in all(entities) do
+            foreach_entity(function(e)
                 local anim = e.animation
                 if e.sprite and e.state and anim then
                     if anim.animations[e.state.current] then
@@ -156,7 +164,7 @@ function create_animation_system()
                         if(cur_animation.flip_x) e.sprite.flip_x = cur_animation.flip_x
                     end
                 end
-            end
+            end)
         end
     }
 end
@@ -167,12 +175,12 @@ function create_control_system()
     return {
         update = function()
             if(log_systems)log(time().." - running constrol system")
-            for e in all(entities) do
+            foreach_entity(function(e)
                 -- update entity movement intention
                 if e.control and e.control.control then
                     e.control.control(e)
                 end
-            end
+            end)
         end
     }
 end
@@ -187,7 +195,7 @@ function create_physics_system()
         if(log_systems)log(time().." - running physiscs system")
         --reset collisions
         ps.collisions = {}
-        for e in all(entities) do
+        foreach_entity(function(e)
             -- apply gravity
             -- *does not apply...*
 
@@ -239,7 +247,7 @@ function create_physics_system()
                 -- update entity position
                 if (can_move_x) e.position.x = new_x
             end
-        end
+        end)
     end
     return ps
 end
@@ -249,7 +257,7 @@ function create_trigger_system()
     return {
         update = function()
             if(log_systems)log(time().." - running trigger system")
-            for e in all(entities) do
+            foreach_entity(function(e)
                 if e.position and e.triggers and #e.triggers > 0 then
                     for trigger in all(e.triggers) do
                         -- check for collisions with other entities
@@ -280,7 +288,7 @@ function create_trigger_system()
                         end
                     end
                 end
-            end
+            end)
             if (triggered == false) e.trigger.active = false
         end
     }
@@ -291,7 +299,7 @@ function create_state_system()
     return {
         update = function()
             if(log_systems)log(time().." - running state system")
-            for e in all(entities) do
+            foreach_entity(function(e)
                 if e.state and e.state.rules then
                     -- if(e.state.previous!=e.state.current)log(e.kind..":"..e.state.previous.."->"..e.state.current)
                     e.state.previous = e.state.current
@@ -300,7 +308,7 @@ function create_state_system()
                         e.state.current = state_rule(e)
                     end
                 end
-            end
+            end)
         end
     }
 end
@@ -311,7 +319,7 @@ function create_battle_system()
         update = function()
             if(log_systems)log(time().." - running battle system")
             -- check all entities with hitboxes
-            for e in all(entities) do
+            foreach_entity(function(e)
                 if e.battle and e.state and e.position then
                     -- advance attack cooldown
                     if(e.battle.cooldown > 0) e.battle.cooldown -= 1
@@ -337,7 +345,7 @@ function create_battle_system()
                         end
                     end
                 end
-            end
+            end)
         end
     }
 end
