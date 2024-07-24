@@ -1,4 +1,7 @@
 function _init()
+    -- input management
+    poke(0x5f5c,255)
+
     -- set global lists
     entities = {}
     particles = {}

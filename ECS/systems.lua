@@ -19,96 +19,80 @@ function create_graphics_system()
             sort(entities, z_comparison)
             foreach_entity(function(e)
                 local cur_pos = e.position
-                -- render entity
-                if e.sprite and cur_pos then
-                    local cur_sprite= e.sprite.sprite
-                    local pal_rep = e.sprite.sprite.pal_rep
-                    if pal_rep and #pal_rep > 0 then
-                        for rep in all(pal_rep) do
-                            pal(rep[1],rep[2])
-                        end
+                if cur_pos != nil then
+                    -- render entity
+                    if e.sprite then
+                        local frame = e.sprite.sprites
+                        local frame_width = calc_frame_w(frame)
+                        local max_frame_w = (e.animation != nil) and e.animation.max_frame_w or calc_max_w({frame})
+                        draw_f(frame, cur_pos, e.sprite.flip_x, max_frame_w)
+                        -- pset(cur_pos.x,cur_pos.y,8)
                     end
-                    sspr(
-                        cur_sprite.x,
-                        cur_sprite.y,
-                        cur_sprite.w,
-                        cur_sprite.h,
-                        cur_pos.x,
-                        cur_pos.y,
-                        cur_sprite.w,
-                        cur_sprite.h,
-                        e.sprite.flip_x,
-                        e.sprite.flip_y
-                    )
-                    -- -- todo: remove
-                    -- if(e.kind=="player" and e.state.current=="punch_right")sspr(72,112,8,8,player.position.x+12,player.position.y+4)
-                    -- --
-                    pal()
-                end
 
-                -- render colliders
-                if e.collider and (e.collider.show or show_colliders) then
-                    local color = e.collider.has_collision and 8 or 7
-                    rect(
-                        e.position.x + e.collider.ox,
-                        e.position.y + e.collider.oy,
-                        e.position.x + e.collider.ox + e.collider.w,
-                        e.position.y + e.collider.oy + e.collider.h,
-                        color
-                    )
-                end
-
-                -- render triggers
-                if e.triggers and #e.triggers > 0 and show_colliders then
-                    for trigger in all(e.triggers) do
-                        local color = 10
+                    -- render colliders
+                    if e.collider and (e.collider.show or show_colliders) then
+                        local color = e.collider.has_collision and 8 or 7
                         rect(
-                            e.position.x + trigger.ox,
-                            e.position.y + trigger.oy,
-                            e.position.x + trigger.ox + trigger.w,
-                            e.position.y + trigger.oy + trigger.h,
+                            cur_pos.x + e.collider.ox,
+                            cur_pos.y + e.collider.oy,
+                            cur_pos.x + e.collider.ox + e.collider.w,
+                            cur_pos.y + e.collider.oy + e.collider.h,
                             color
                         )
                     end
-                end
 
-                -- render hitboxes and hutboxes
-                if e.battle and e.position and e.state and show_hitboxes then
-                    -- render hitboxes
-                    if e.battle.hitboxes then
-                        local hitbox = e.battle.hitboxes[e.state.current]
-                        if hitbox then 
+                    -- render triggers
+                    if e.triggers and #e.triggers > 0 and show_colliders then
+                        for trigger in all(e.triggers) do
+                            local color = 10
                             rect(
-                                e.position.x + hitbox.ox,
-                                e.position.y + hitbox.oy,
-                                e.position.x + hitbox.ox + hitbox.w,
-                                e.position.y + hitbox.oy + hitbox.h,
-                                2
+                                cur_pos.x + trigger.ox,
+                                cur_pos.y + trigger.oy,
+                                cur_pos.x + trigger.ox + trigger.w,
+                                cur_pos.y + trigger.oy + trigger.h,
+                                color
                             )
                         end
                     end
 
-                    if e.battle.hurtboxes then
-                        local hurtbox = e.battle.hurtboxes[e.state.current]
-                        if hurtbox then
-                            rect(
-                                e.position.x + hurtbox.ox,
-                                e.position.y + hurtbox.oy,
-                                e.position.x + hurtbox.ox + hurtbox.w,
-                                e.position.y + hurtbox.oy + hurtbox.h,
-                                14
-                            )
+                    -- render hitboxes and hutboxes
+                    if e.battle and e.state and show_hitboxes then
+                        -- render hitboxes
+                        if e.battle.hitboxes then
+                            local hitbox = e.battle.hitboxes[e.state.current]
+                            if hitbox then 
+                                rect(
+                                    cur_pos.x + hitbox.ox,
+                                    cur_pos.y + hitbox.oy,
+                                    cur_pos.x + hitbox.ox + hitbox.w,
+                                    cur_pos.y + hitbox.oy + hitbox.h,
+                                    2
+                                )
+                            end
+                        end
+
+                        if e.battle.hurtboxes then
+                            local hurtbox = e.battle.hurtboxes[e.state.current]
+                            if hurtbox then
+                                rect(
+                                    cur_pos.x + hurtbox.ox,
+                                    cur_pos.y + hurtbox.oy,
+                                    cur_pos.x + hurtbox.ox + hurtbox.w,
+                                    cur_pos.y + hurtbox.oy + hurtbox.h,
+                                    14
+                                )
+                            end
                         end
                     end
-                end
 
-                -- render interactions
-                -- interactions
-                if e.kind == "player" then
-                    local cel_x = flr((e.position.x+8)/8)
-                    if fget(mget(cel_x,8),0) then
-                        -- spr(209,cel_x*8,56)
-                        print("🅾️",cel_x*8,56,9)
+                    -- render interactions
+                    -- interactions
+                    if e.kind == "player" then
+                        local cel_x = flr((cur_pos.x)/8)
+                        if fget(mget(cel_x,8),0) then
+                            -- spr(209,cel_x*8,56)
+                            print("🅾️",cel_x*8,56,9)
+                        end
                     end
                 end
             end)
@@ -140,28 +124,38 @@ function create_animation_system()
                         -- if state has changed update current animation
                         if e.state.current != e.state.previous then
                             anim.active_anim = e.state.current
-                            anim.anim_i = 1
+                            anim.max_frame_w = calc_max_w(anim.animations[anim.active_anim].frames)
+                            anim.i = 1
+                            anim.frame_t = 0
                         end
 
                         -- progress animation
-                        local cur_animation = anim.animations[anim.active_anim]
-                        if anim.anim_i < #cur_animation.frames + 1 - cur_animation.speed then
-                            anim.anim_i += cur_animation.speed
-                        else
-                            if cur_animation.loop then
-                                anim.anim_i = 1
-                            -- elseif cur_animation.turn_to_idle then
-                            --     anim.active_anim = "idle"
-                            --     anim.anim_i = 1
+                        local cur_a = anim.animations[anim.active_anim]
+                        anim.frame_t += 1
+
+                        if anim.frame_t >= cur_a.speed * 60 then
+                            anim.i += 1
+                            anim.frame_t = 0
+                        end
+
+                        if anim.i > #cur_a.frames then
+                            if cur_a.loop then
+                                anim.i = 1
+                            else
+                                anim.i = #cur_a.frames + 1 -- Allow to exceed frame count for end check
                             end
                         end
                         
                         -- set sprite
-                        local new_frame = cur_animation.frames[flr(anim.anim_i)]
-                        e.sprite.sprite = new_frame
+                        local frame_i = flr(anim.i)
+                        if frame_i > #cur_a.frames then
+                            frame_i = #cur_a.frames
+                        end
+
+                        e.sprite.sprites = cur_a.frames[frame_i]
 
                         -- override flip based on animation
-                        if(cur_animation.flip_x) e.sprite.flip_x = cur_animation.flip_x
+                        if(cur_a.flip_x) e.sprite.flip_x = cur_a.flip_x
                     end
                 end
             end)
@@ -208,7 +202,6 @@ function create_physics_system()
 
                 -- left movement
                 if e.intention.left then
-                    -- new_x -= 1 * spd_x
                     direction_x = -1
                 end
                 -- right movement
@@ -336,7 +329,7 @@ function create_battle_system()
                                     o.battle.health -= e.battle.damage
                                     o.state.previous = o.state.current
                                     o.state.current = "_damaged"
-                                    spawn_shatter(o.position.x+8,o.position.y+8,{8,8,2},{})
+                                    spawn_shatter(o.position.x,o.position.y+8,{8,8,2},{})
                                     if o.battle.health<1 then
                                         o.state.current = "_death"
                                     end
@@ -398,4 +391,44 @@ end
 function colliding(x1,y1,w1,h1,x2,y2,w2,h2)
     return flr(x1+w1) > flr(x2) and flr(x1) < flr(x2+w2)
         and flr(y1+h1) > flr(y2) and flr(y1) < flr(y2+h2)
+end
+
+-- Function to calculate the bounding box width of a single frame
+function calc_frame_w(f)
+    local min_x, max_x = 127, -127
+    for s in all(f.sprites) do
+        local left, right = s.ox, s.ox + s.w
+        if left < min_x then min_x = left end
+        if right > max_x then max_x = right end
+    end
+    return max_x - min_x
+end
+
+-- Function to calculate the maximum width among all frames
+function calc_max_w(fs)
+    local max_w = 0
+    for f in all(fs) do
+        local w = calc_frame_w(f)
+        if w > max_w then max_w = w end
+    end
+    return max_w
+end
+
+-- Function to draw a frame of sprites using sspr
+function draw_f(f, p, fx, fw)
+    if f.pal_rep then
+        for pr in all(f.pal_rep) do
+            pal(pr[1], pr[2])
+        end
+    end
+
+    local bx = p.x - fw / 2
+    for s in all(f.sprites) do
+        local x = bx + s.ox
+        local y = p.y + s.oy
+        if fx then x = bx + (fw - s.ox - s.w) end
+        sspr(s.x, s.y, s.w, s.h, x, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
+    end
+
+    pal()
 end

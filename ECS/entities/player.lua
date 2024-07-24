@@ -1,59 +1,61 @@
 function _player_i()
+    player_combo = false
     -- #region player animation
     local player_animation = {
-        _damaged = {
-            frames = {
-                {x=32,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
-                {x=32,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
-                {x=48,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
-                {x=48,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
-                {x=16,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
-                {x=16,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
-            },
-            speed = 0.5
-        },
+        -- _damaged = {
+        --     frames = {
+        --         {x=32,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+        --         {x=32,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
+        --         {x=48,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+        --         {x=48,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
+        --         {x=16,y=0,w=16,h=16,pal_rep={{9,6},{15,6},{4,6},{7,6},{12,6}}},
+        --         {x=16,y=0,w=16,h=16,pal_rep={{9,8},{15,8},{4,8},{7,8},{12,8}}},
+        --     },
+        --     speed = 0.5
+        -- },
     }
-    local animation_comp = new_animation(player_animation,"idle")
-    animation_comp.add_animation("idle","32,0,16,16|32,0,16,16|32,0,16,16|48,0,16,16|16,0,16,16|32,0,16,16",0.05,true)
-    animation_comp.add_animation("_death","48,112,8,8|56,112,8,8|48,120,8,8|56,120,8,8",0.1)
-    animation_comp.add_animation("run","0,16,16,16|16,16,16,16|32,16,16,16|48,16,16,16|64,16,16,16|80,16,16,16|96,16,16,16|112,16,16,16",0.15,true)
-    animation_comp.add_animation("punch_right","16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16",0.2)
-    animation_comp.add_animation("punch_left","16,0,16,16|0,32,16,16|16,32,16,16|32,32,16,16|48,32,16,16",0.2)
-    animation_comp.add_animation("swing_right","16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16",0.2)
-    animation_comp.add_animation("swing_left","16,0,16,16|80,32,16,16|96,32,16,16|112,32,16,16|0,48,16,16|16,48,16,16|32,48,16,16|32,48,16,16",0.2)
-    animation_comp.add_animation("shoot","16,0,16,16|64,0,16,16|80,0,16,16|96,0,16,16|112,0,16,16",0.2)
+    local p1 = "82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|91,0,11,6,6,-5@26,8,9,8,8,-12@114,0,16,4,4,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@118,4,12,3,8,-5^3:7,4:7,9:7,12:7,13:7,15:7|91,0,11,6,6,-5@16,8,10,8,8,-12@117,7,13,5,8,-6^3:6,4:6,9:6,12:6,13:6,15:6|91,0,11,6,6,-5@26,8,9,8,8,-12@117,7,13,5,9,-6^3:7,4:7,9:7,12:7,13:7,15:7|91,0,11,6,6,-5@26,8,9,8,8,-12@125,12,4,3,17,-5"
+    local p2 = "26,8,9,8,10,-11@91,0,11,6,7,-5|26,8,9,8,10,-11@91,0,11,6,7,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@109,15,8,6,10,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@117,15,6,5,12,-5^3:7,4:7,9:7,12:7,13:7,15:7|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5^3:6,4:6,9:6,12:6,13:6,15:6|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5^3:7,4:7,9:7,12:7,13:7,15:7|96,7,7,7,5,-6@26,8,9,8,2,-11,true,false@126,16,2,3,17,-5|44,14,7,9,5,-8@16,0,10,8,1,-11"
+    local p3 = "44,14,7,9,5,-8@16,0,10,8,1,-11|103,7,8,6,6,-5@26,8,9,8,5,-12|51,14,8,10,8,-9@16,0,10,8,6,-14@112,22,5,10,14,-11|51,14,8,10,8,-9@16,0,10,8,6,-14@117,22,3,10,15,-10|51,14,8,10,8,-9@26,0,9,8,6,-14@120,22,5,8,14,-11|44,0,8,6,6,-5@16,0,10,8,6,-13@125,22,3,4,14,-14"
+
+    local ac = new_animation(player_animation,"idle")
+    -- ac.add_animation("_death","48,112,8,8|56,112,8,8|48,120,8,8|56,120,8,8",0.1)
+    ac.add_animation("idle","44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13",0.2,true)
+    ac.add_animation("run","44,7,7,5,0,-5@26,0,9,8,0,-13|51,7,5,6,0,-5@26,0,9,8,0,-12|56,7,6,7,0,-6@16,0,10,8,0,-14|62,7,8,5,0,-7@16,0,10,8,0,-15|70,7,7,5,0,-5@26,0,9,8,0,-13|77,7,5,5,0,-4@26,0,9,8,0,-11|82,7,6,7,0,-6@16,0,10,8,0,-14|88,7,8,5,0,-7@16,0,10,8,0,-15",0.15,true)
+
+    ac.add_animation("punch_right_1",p1,.05,false)
+    ac.add_animation("punch_right_2",p2,.05,false)
+    ac.add_animation("punch_right_3",p3,.05,false)
+    ac.add_animation("punch_left_1",p1,.05,false)
+    ac.add_animation("punch_left_2",p2,.05,false)
+    ac.add_animation("punch_left_3",p3,.05,false)
+    ac.add_animation("shoot","60,0,8,7,4,-5@26,0,9,8,4,-13|68,0,6,7,5,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@35,8,9,8,3,-13@96,14,5,5,13,-7|74,0,7,7,6,-5@35,8,9,8,3,-13@102,14,6,3,13,-6|74,0,7,7,6,-5@26,0,9,8,3,-13@125,12,3,3,16,-6",.05,false)
+
+    
 
 
     -- #region player state
     local player_states = {
         idle = function(_e)
-            -- move player
+            player_combo = false
+            _e.state.can_attack = true
             if(_e.intention.left) _e.position.dx=-1 return 'run'
             if(_e.intention.right) _e.position.dx=1 return 'run'
-
-            -- attack
             if _e.intention.x then 
                 _e.intention.right=false
                 _e.intention.left=false
                 return get_player_attack_state(_e)
             end
-
-            -- return current state
             return "idle"
         end,
         _damaged = function(_e)
-            spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
-            -- idle
-            local damage_ended = check_animation_ended(_e,"_damaged")
-            if(damage_ended) return "idle"
-            -- continue damaged state
+            spawn_shatter(_e.position.x,_e.position.y+8,{8,8,2},{})
+            if(_e.animation.progress_percentage()>1) return "idle"
             return "_damaged"
         end,
         _death = function(_e)
-            spawn_shatter(_e.position.x+8,_e.position.y+8,{8,8,2},{})
-            local death_ended = check_animation_ended(_e,"_death")
-            -- delete entity
-            if death_ended then
+            spawn_shatter(_e.position.x,_e.position.y+8,{8,8,2},{})
+            if _e.animation.progress_percentage()>1 then
                 del(entities,_e)
                 load_scene_death()
             else
@@ -61,106 +63,61 @@ function _player_i()
             end
         end,
         run = function(_e)
-            if _e.position.dx > 0 then
-                -- looking right
-                _e.sprite.flip_x = false 
-            else
-                -- looking left
-                _e.sprite.flip_x = true
-            end
-            -- attack
+            _e.state.can_attack = true
+            _e.sprite.flip_x=_e.position.dx<=0
             if _e.intention.x then 
                 _e.intention.right=false
                 _e.intention.left=false
                 return get_player_attack_state(_e)
             end
-            -- keep moving
             if(_e.intention.right) _e.position.dx = 1 return "run"
             if(_e.intention.left) _e.position.dx = -1 return "run"
-
-            -- idle
             return "idle"
         end,
-        punch_right = function(_e)
-            local attack_ended = check_animation_ended(_e,"punch_right")
-
-            -- idle
-            if(attack_ended) return "idle"
-
-            -- keep punching
-            return "punch_right"
-        end,
-        punch_left = function(_e)
-            local attack_ended = check_animation_ended(_e,"punch_left")
-
-            -- idle
-            if(attack_ended) return "idle"
-
-            -- keep punching
-            return "punch_left"
-        end,
-        swing_right = function(_e)
-            local attack_ended = check_animation_ended(_e,"swing_right")
-
-            -- idle
-            if(attack_ended) return "idle"
-
-            -- keep swinging
-            return "swing_right"
-        end,
-        swing_left = function(_e)
-            local attack_ended = check_animation_ended(_e,"swing_left")
-
-            -- idle
-            if(attack_ended) return "idle"
-
-            -- keep swinging
-            return "swing_left"
-        end,
+        punch_right_1 = function(_e) return punch_state(_e, "punch_right_1", true) end,
+        punch_right_2 = function(_e) return punch_state(_e, "punch_right_2", true) end,
+        punch_right_3 = function(_e) return punch_state(_e, "punch_right_3", false) end,
+        punch_left_1 = function(_e) return punch_state(_e, "punch_left_1", true) end,
+        punch_left_2 = function(_e) return punch_state(_e, "punch_left_2", true) end,
+        punch_left_3 = function(_e) return punch_state(_e, "punch_left_3", false) end,
         shoot = function(_e)
-            local attack_ended = check_animation_ended(_e,"shoot")
-            
-            -- idle
-            if(attack_ended) return "idle"
-            
-            local anim_perch = _e.animation.anim_i/#_e.animation.animations["shoot"].frames
-            -- shoot the buller
-            if anim_perch == 0.8 then
-                if _e.inventory.bullets > 0 then
+            local p=_e.animation.progress_percentage()
+            if p>1 then return "idle" end
+            if p>.8 and not player_combo then
+                player_combo=true
+                if _e.inventory.bullets>0 then
                     spawn_bullet(_e.position.x, _e.position.dx)
                     _e.inventory.bullets -= 1
                 else
                     -- todo: fx for missing bullets
                 end
             end
-            -- keep punching
             return "shoot"
-        end,
+        end
     }
     -- #region player battle
     local player_hurtboxes = {
-        idle = { ox=5, oy=3, w=5, h=12 },
-        run = { ox=5, oy=3, w=5, h=12 },
-        punch_right = { ox=5, oy=3, w=5, h=12 },
-        punch_left = { ox=5, oy=3, w=5, h=12 },
-        swing_left = { ox=5, oy=3, w=5, h=12 },
-        swing_left = { ox=5, oy=3, w=5, h=12 },
-        shoot = { ox=5, oy=3, w=5, h=12 },
+        idle = { ox=-4, oy=-12, w=7, h=12 },
+        run = { ox=-4, oy=-12, w=7, h=12 },
+        shoot = { ox=-4, oy=-12, w=7, h=12 },
     }
     local player_hitboxes = {
         punch_left = { ox=0, oy=8, w=3, h=4 },
-        punch_right = { ox=12, oy=4, w=8, h=8 },--{ ox=12, oy=8, w=3, h=4 },
-        swing_left = { ox=-4, oy=8, w=7, h=4 },
-        swing_right = { ox=14, oy=8, w=7, h=4 },
+        punch_right_1 = { ox=0, oy=-8, w=8, h=6 },
+        punch_right_2 = { ox=0, oy=-8, w=8, h=6 },
+        punch_right_3 = { ox=2, oy=-12, w=9, h=12 },
+        punch_left_1 = { ox=-9, oy=-8, w=8, h=6 },
+        punch_left_2 = { ox=-9, oy=-8, w=8, h=6 },
+        punch_left_3 = { ox=-11, oy=-12, w=9, h=12 },
     }
 
     -- #region player entity
     player = new_entity({
         kind = "player",
         code = "playe",
-        position = new_position(22,60,16,16,2),
-        sprite = new_sprite({x=16,y=0,w=16,h=16}),
-        animation = animation_comp,
+        position = new_position(22,0,16,16,2),
+        sprite = new_sprite({{x=16,y=0,w=16,h=16}}),
+        animation = ac,
         control = new_control({
             left = ⬅️,
             right = ➡️,
@@ -172,11 +129,11 @@ function _player_i()
             control_func = player_contol
         }),
         intention = new_intention(),
-        collider = new_collider(5,3,5,12,{}),
+        collider = new_collider(-4,-12,7,12,{}),
         state = new_state(player_states,"idle"),
-        battle = new_battle(player_hitboxes,player_hurtboxes,{health=200, damage=20, cd_time= 45}),
+        battle = new_battle(player_hitboxes,player_hurtboxes,{health=200, damage=10, cd_time= 45}),
         --inventory = new_inventory(3,true,2,98,{})
-        inventory = new_inventory(3,true,50,96,{})
+        inventory = new_inventory(2,true,50,96,{})
     })
     add(entities,player)
 end
@@ -186,12 +143,8 @@ function player_contol(_e)
     -- player attack
     _e.intention.x = btnp(_e.control.x)
 
-    local is_attacking = 
-        _e.state.current == "punch_right" or
-        _e.state.current == "punch_left" or
-        _e.state.current == "swing_right" or
-        _e.state.current == "swing_left" or
-        _e.state.current == "shoot"
+    local as = {punch_right_1=true, punch_right_2=true, punch_right_3=true, punch_left_1=true, punch_left_2=true, punch_left_3=true, swing_right=true, swing_left=true, shoot=true}
+    local is_attacking = as[_e.state.current] or false
 
     -- player movement
     _e.intention.left = not is_attacking and btn(_e.control.left)
@@ -199,7 +152,7 @@ function player_contol(_e)
     _e.intention.is_moving = _e.intention.left or _e.intention.right
 
     -- check for interaction
-    local cel_x = flr((_e.position.x+8)/8)
+    local cel_x = flr((_e.position.x)/8)
     if fget(mget(cel_x,8),0) then
         local is_interacting = btnp(_e.control.o)
         _e.intention.o = is_interacting
@@ -219,35 +172,47 @@ function player_contol(_e)
     end
 
     -- debug inventory
-    -- if(btn(_e.control.up) and btn(_e.control.down)) debug_items()
+    if(btnp(_e.control.up) and btnp(_e.control.down)) debug_items()
 end
 
 function get_player_attack_state(_e)
-    local equipped_item = _e.inventory.items[_e.inventory.active_i]
-    -- hand
-    if(equipped_item == nil) sfx(14) return _e.position.dx > 0 and "punch_right" or "punch_left"
-    if(equipped_item.kind == "gloves")_e.battle.damage = 40 sfx(14) return _e.position.dx > 0 and "punch_right" or "punch_left"
+    local eq=_e.inventory.items[_e.inventory.active_i]
+    if not eq or eq.kind=="gloves" then
+        _e.battle.damage=(eq and eq.kind=="gloves") and 40 or 10
+        sfx(14)
+        local ns={
+            punch_right_1={s="punch_right_2",d=12},
+            punch_right_2={s="punch_right_3",d=15},
+            punch_left_1={s="punch_left_2",d=12},
+            punch_left_2={s="punch_left_3",d=15}
+        }
+        ns = ns[_e.state.current]
+        if ns then
+            _e.battle.damage=ns.d
+            return ns.s
+        end
+        player_combo=true
+        return _e.position.dx>0 and "punch_right_1" or "punch_left_1"
+    end
 
-    -- crowbar
-    if(equipped_item.kind == "crowbar")_e.battle.damage = 70 sfx(15) return _e.position.dx > 0 and "swing_right" or "swing_left"
+    if(eq.kind == "gun") sfx(16) return "shoot"
 
-    -- gun
-    if(equipped_item.kind == "gun") sfx(16) return "shoot"
+    return "idle"
 end
 
 -- #region loot
-function loot(_particle_x,_particle_y)
+function loot(_px,_py)
     local r = rnd()
     -- add loot particles 
     spawn_smoke(
-        _particle_x+2,
-        _particle_y,
+        _px+2,
+        _py,
         {6,7,7},
         { angle = 0.75, max_size = 1.5+rnd(2), max_age = 30 }
     )
     spawn_smoke(
-        _particle_x-2,
-        _particle_y,
+        _px-2,
+        _py,
         {6,7,7},
         { angle = 0.25, max_size = 1.5+rnd(2), max_age = 30 }
     )
@@ -257,50 +222,60 @@ function loot(_particle_x,_particle_y)
     if r > 0.03 then
         player.battle.health = min(player.battle.health+10, 200)
         sfx(11)
-        spawn_shatter(_particle_x,_particle_y,{3,11,11,7},{})
+        spawn_shatter(_px,_py,{3,11,11,7},{})
         return
     end
 
     local gloves = new_entity({
         kind = "gloves",
-        sprite = new_sprite({x=0,y=104,w=8,h=8}),
-    })
-    local crowbar = new_entity({
-        kind = "crowbar",
-        sprite = new_sprite({x=0,y=8,w=8,h=8}),
+        sprite = new_sprite({{x=0,y=104,w=8,h=8}}),
     })
     local gun = new_entity({
         kind = "gun",
-        sprite = new_sprite({x=8,y=0,w=8,h=8}),
+        sprite = new_sprite({{x=8,y=0,w=8,h=8}}),
     })
 
     local nbr_items = #player.inventory.items
     if(nbr_items==0) add(player.inventory.items,gloves) player.inventory.active_i = 1
-    if(nbr_items==1) add(player.inventory.items,crowbar) player.inventory.active_i = 2
-    if(nbr_items==2) add(player.inventory.items,gun) player.inventory.active_i = 3
-    if(nbr_items>2) player.inventory.bullets += flr(rnd()*5)
+    if(nbr_items==1) add(player.inventory.items,gun) player.inventory.active_i = 3
+    if(nbr_items>1) player.inventory.bullets += flr(rnd()*5)
 
     -- add found particles
     sfx(13)
-    spawn_shatter(_particle_x,_particle_y,{9,10,7},{})
+    spawn_shatter(_px,_py,{9,10,7},{})
 end
 
 function debug_items()
     local gloves = new_entity({
         kind = "gloves",
-        sprite = new_sprite({x=0,y=104,w=8,h=8}),
-    })
-    local crowbar = new_entity({
-        kind = "crowbar",
-        sprite = new_sprite({x=0,y=8,w=8,h=8}),
+        sprite = new_sprite({{x=0,y=104,w=8,h=8}}),
     })
     local gun = new_entity({
         kind = "gun",
-        sprite = new_sprite({x=8,y=0,w=8,h=8}),
+        sprite = new_sprite({{x=8,y=0,w=8,h=8}}),
     })
 
     add(player.inventory.items,gloves) player.inventory.active_i = 1
-    add(player.inventory.items,crowbar) player.inventory.active_i = 2
     add(player.inventory.items,gun) player.inventory.active_i = 3
     player.inventory.bullets += 5
+end
+
+function punch_state(_e, state_name, can_combo)
+    _e.state.can_attack = false
+    local anim_perc = _e.animation.progress_percentage()
+    if anim_perc > 1 then return "idle" end
+
+    if can_combo and anim_perc == mid(.62, anim_perc, 1) then
+        _e.state.can_attack = true
+    end
+
+    if _e.intention.x and player_combo then
+        if _e.state.can_attack then 
+            return get_player_attack_state(_e)
+        else
+            player_combo = false
+        end
+    end
+
+    return state_name
 end

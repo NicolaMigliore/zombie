@@ -1,7 +1,7 @@
 -- create new bullet
 function spawn_bullet(_x,_dir)
     -- set bullet position and speed
-    local bullet_speed = _dir > 0 and 2 or -2
+    local bullet_speed = _dir*2
     _x = _dir > 0 and _x+10 or _x-2
 
     local bullet_states = {
@@ -10,10 +10,10 @@ function spawn_bullet(_x,_dir)
             local bullet_collisions = physics_system.collisions[_e.id]
             if bullet_collisions != nil then
                 local oi = 1
-                local collided_with_zombie = false
-                while oi <= #bullet_collisions and collided_with_zombie == false do
+                local hit_zombie = false
+                while oi <= #bullet_collisions and hit_zombie == false do
                     local ent = get_entity(bullet_collisions[oi])
-                    if(ent.kind=="zombie") collided_with_zombie = true return "hit"
+                    if(ent.kind=="zombie") hit_zombie = true return "hit"
                     oi += 1
                 end
             end
@@ -37,8 +37,8 @@ function spawn_bullet(_x,_dir)
     local new_bullet = new_entity({
         kind = "bullet",
         code = "bulle",
-        position = new_position(_x,70,2,1),
-        sprite = new_sprite({x=8,y=96,w=2,h=1,pal_rep={{10,6}},}),
+        position = new_position(_x,68,2,1),
+        sprite = new_sprite({sprites = {{x=8,y=96,w=2,h=1,ox=0,oy=0,fx=false,fy=false}}, pal_rep={{10,6}}}),
         intention = new_intention(),
         control = new_control({spd_x = bullet_speed, control_func = bullet_control}),
         state = new_state(bullet_states, "travel"),

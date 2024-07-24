@@ -58,7 +58,7 @@ function _ui_d()
             -- render items
             local item = player.inventory.items[i]
             if item then
-                sspr(item.sprite.sprite.x, item.sprite.sprite.y, 8, 8, inv_x + (square_size/2-4) + offset_x, inv_y + (square_size/2-3))
+                sspr(item.sprite.sprites[1].x, item.sprite.sprites[1].y, 8, 8, inv_x + (square_size/2-4) + offset_x, inv_y + (square_size/2-3))
             end
         end
         if #player.inventory.items > 0 then

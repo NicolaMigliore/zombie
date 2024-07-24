@@ -125,7 +125,7 @@ function zombie_control(_e)
 
     local is_attacking = _e.state.current == "attack_right" or _e.state.current == "attack_left"
     local is_damaged = _e.state.current == "_damaged" or _e.state.current == "_death"
-    local distance = (_e.position.x+8) - (player.position.x+8)
+    local distance = (_e.position.x) - (player.position.x)
     -- zombies always know where the player is
 
     if abs(distance) > 7 and not is_attacking and not is_damaged then

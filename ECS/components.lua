@@ -18,13 +18,13 @@ function new_position(_x,_y,_w,_h,_z)
 end
 
 -- #region sprite component ---
--- @param _sprite | sprites object in the form { x = <x coord>, y = <y coord> ,w = <sprite width in pixels>,h = <sprite height in pixels>,pal_rep = <palette replacent list {{c1,c2}}> }
+-- @param _sprite | sprites object in the form {{ x = <x coord>, y = <y coord> ,w = <sprite width in pixels>,h = <sprite height in pixels>,pal_rep = <palette replacent list {{c1,c2}}> }}
 -- @param _flip_x | boolean to describe if the sprite should be flipped on the x axis
 -- @param _flip_y | boolean to describe if the sprite should be flipped on the y axis
 -- @param _palette_replace | list of couples of colors to replace in the form {{c1,c2}}
-function new_sprite(_sprite,_flip_x,_flip_y)
+function new_sprite(_sprites,_flip_x,_flip_y)
     local s = {
-        sprite = _sprite,
+        sprites = _sprites,
         flip_x = _flip_x or false,
         flip_y = _flip_y or false,
     }
@@ -39,9 +39,11 @@ function new_animation(_animations,_active_anim,_set_anim,_timer)
     local a = {
         animations = _animations,
         active_anim = _active_anim,
-        anim_i = 1,
+        frame_t = 0,
+        i = 1,
     }
     a.set_animation = _set_anim
+    a.max_frame_w = 1
     a.add_animation = function (_anim_name,_frame_str,_speed,_loop)
         a.animations[_anim_name] = {
             frames = str2frames(_frame_str),
@@ -49,11 +51,16 @@ function new_animation(_animations,_active_anim,_set_anim,_timer)
             loop = _loop or false
         }
     end
+    a.progress_percentage = function ()
+        local cur = a.animations[a.active_anim]
+        return (a.i - 1 + (a.frame_t / (cur.speed * 60))) / #cur.frames
+    end
+
     return a
 end
 -- check if the given animation has ended
 function check_animation_ended(_e, _anim_name)
-    return _e.animation.anim_i > #_e.animation.animations[_anim_name].frames
+    return _e.animation.i > #_e.animation.animations[_anim_name].frames
 end
 
 -- #region state component ---
@@ -66,6 +73,7 @@ function new_state(_rules,_initial_state)
         current = _initial_state,
         previous = _initial_state,
         rules = _rules,
+        can_attack = false,
     }
     return s
 end
