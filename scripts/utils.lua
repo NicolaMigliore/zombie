@@ -13,6 +13,15 @@ function sort(_list, _comparison_f)
     end
 end
 
+function shake()
+    shake_x=rnd(intensity) - (intensity /2)
+    shake_y=rnd(intensity) - (intensity /4)
+
+    --ease shake and return to normal
+    intensity *= .9
+    if intensity < .3 then intensity = 0 end
+end
+
 -- pad string with zeros
 function pad(v, length)
     local s = "0000000000" .. v

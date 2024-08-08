@@ -9,7 +9,8 @@ function _scene_level_u()
 
     -- move camera
     gamecamera.position.x = min(896,max(0,player.position.x - 30))
-    camera(gamecamera.position.x)
+
+    camera(gamecamera.position.x+flr(shake_x),flr(shake_y))
 
     spawn_timer += 1
     if spawn_timer == 180 then
@@ -50,26 +51,8 @@ function create_level()
     score += 10
     particles = {}
 
-    -- b - black
-    -- w - window
-    -- d - door
-    -- r - road line
-    -- s - sidewalk
-    -- t - trash
-    -- f - fence
-    -- v - vertical road
-    -- x - nothing
-    cells = {
-        b = 192,
-        w = 193,
-        d = 194,
-        r = 195,
-        s = 196,
-        t = 197,
-        f = 198,
-        v = 199,
-        x = 0
-    }
+    -- b-black|w-window|d-door|r-road line|s-sidewalk|t-trash|f-fence|v-vertical road|x-nothing
+    cells = {b=192,w=193,d=194,r=195,s=196,t=197,f=198,v=199,x=0}
     available_chunks = {
         "xxxxxxxxxxbwbwbx|bbbbbxxxxxbwbwbx|bbbbbxxxxxbbbbbx|bwbwbxxxxxbwbwbx|bwbwbxxxxxbwbwbx|bbbbbbbbbbbbbbbx|bwbbbbwbwbbwbwbx|bwbdbbwbwbbwbwbx|bbbdbbbbbbbbbbbx|ssssssssssssssss|bbbbbbbbbbbbbbbb|rrrrrrrrrrrrrrrr",
         "xxxxxxxxxxxbwbwb|xxxxxxxxxxxbwbwb|xxxxbbbbxxxbbbbb|xxxxbwbbxxxbwbwb|xxxxbwbbxxxbwbwb|xxxxbbbbxxxbbbbb|xxxxbwbbfffbwbbb|xxxxbwbbfffbwbdb|txxtbbbbfffbbbdb|ssssssssssssssss|bbbbbbbbbbbbbbbb|rrrrrrrrrrrrrrrr",
@@ -107,7 +90,7 @@ function create_level()
 
     -- set player position
     player.position.x = 22
-    player.position.y = 60
+    player.position.y = 74
 end
 
 function load_scene_level()
@@ -123,4 +106,5 @@ function load_scene_level()
 
     -- create level
     create_level()
+    -- spawn_zombie(80)
 end

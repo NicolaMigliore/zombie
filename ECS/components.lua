@@ -131,6 +131,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
         cd_time = _opts.cd_time or 180,
         cooldown = _opts.cd_time or 0,
         damage = _opts.damage or 20,
+        knock = false,
         get_box = function(_pos,_box)
             --- @param _pos: poistion component
             --- @param _box: hitbox or hurtbox item

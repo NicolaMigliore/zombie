@@ -132,7 +132,6 @@ function create_animation_system()
                         -- progress animation
                         local cur_a = anim.animations[anim.active_anim]
                         anim.frame_t += 1
-
                         if anim.frame_t >= cur_a.speed * 60 then
                             anim.i += 1
                             anim.frame_t = 0
@@ -241,6 +240,8 @@ function create_physics_system()
                 if (can_move_x) e.position.x = new_x
             end
         end)
+        -- shake camera
+        if(intensity>0) shake()
     end
     return ps
 end
@@ -329,9 +330,18 @@ function create_battle_system()
                                     o.battle.health -= e.battle.damage
                                     o.state.previous = o.state.current
                                     o.state.current = "_damaged"
-                                    spawn_shatter(o.position.x,o.position.y+8,{8,8,2},{})
+                                    spawn_shatter(o.position.x,o.position.y-8,{8,8,2},{})
+                                    if(e.battle.knock) o.position.x += (8+rnd(2)) * e.position.dx intensity+=shake_ctrl
                                     if o.battle.health<1 then
                                         o.state.current = "_death"
+                                        for d in all({{0,1,.1},{.5,1,.1},{.25,2,.3}}) do
+                                            spawn_smoke(
+                                                o.position.x,
+                                                o.position.y-2,
+                                                {5,7,7},
+                                                { angle = d[1], max_size = d[2]+rnd(2), max_age = 90*rnd(), spd = d[3] }
+                                            )
+                                        end
                                     end
                                 end
                             end
@@ -381,7 +391,7 @@ function create_particle_system()
 end
 
 function z_comparison(_a,_b)
-    return _a.position.z < _b.position.z
+    return _a.position.z > _b.position.z
 end
 
 function box_collide(box1,box2)

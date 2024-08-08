@@ -25,6 +25,9 @@ function _init()
     log_systems = false
 
     cam_x = 0
+    intensity = 0
+    shake_ctrl = .5
+    shake_x,shake_y=0,0
 
     _ui_i()
     _scene_highscore_i()

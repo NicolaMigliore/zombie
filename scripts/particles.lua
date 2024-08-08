@@ -4,12 +4,12 @@ function spawn_smoke(_x,_y,_colors,_opts)
 		local angle = _opts.angle or rnd()
 		local max_size = _opts.max_size or 0.5+rnd(2)
         local max_age = _opts.max_age or 30
-		local dx = sin(angle)*0.05
-		local dy = cos(angle)*0.05
+		local spd = _opts.spd or 0.05
+		local dx = cos(angle) * spd
+		local dy = sin(angle) * spd
 
 		if (_opts.dx) dx = _opts.dx
-		if (_opts.dy) dx = _opts.dy 
-
+		if (_opts.dy) dy = _opts.dy 
 		local p = new_particle(
 			"smoke",
 			new_position(_x,_y,max_size,0),
@@ -27,7 +27,7 @@ end
 function spawn_shatter(_x,_y,_colors,_opts)
 	local tmp_dx, tmp_dy = _opts.dx or 0, _opts.dy or -1
 
-	for i=1,rnd(10,15) do
+	for i=1,rnd(20)+5 do
 		local angle = rnd()
 		local dx = sin(angle)*rnd(1.5)+(tmp_dx/2)
 		local dy = cos(angle)*rnd(1.5)+(tmp_dy/2)
