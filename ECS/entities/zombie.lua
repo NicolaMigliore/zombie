@@ -96,7 +96,7 @@ function spawn_zombie(_x)
         animation = animation_comp,
         state = new_state(zombie_states,"idle"),
         intention = new_intention(),
-        control = new_control({spd_x = 0.2, control_func=zombie_control}),
+        control = new_control({spd_x = .2+rnd(.15), control_func=zombie_control}),
         collider = new_collider(-4,-12,7,12,{is_solid=false}),
         battle = new_battle(zombie_hitboxes,zombie_hurtboxes,{health=40, damage=5}),
     })

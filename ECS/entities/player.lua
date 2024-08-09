@@ -95,12 +95,12 @@ function _player_i()
         shoot = p_hb,
     }
     local player_hitboxes = {
-        punch_right_1 = { ox=2, oy=-8, w=12, h=6 },
-        punch_right_2 = { ox=2, oy=-8, w=12, h=6 },
+        punch_right_1 = { ox=2, oy=-8, w=10, h=6 },
+        punch_right_2 = { ox=2, oy=-8, w=10, h=6 },
         punch_right_3 = { ox=3, oy=-12, w=11, h=12 },
-        punch_left_1 = { ox=-14, oy=-8, w=12, h=6 },
-        punch_left_2 = { ox=-14, oy=-8, w=12, h=6 },
-        punch_left_3 = { ox=-14, oy=-12, w=11, h=12 },
+        punch_left_1 = { ox=-12, oy=-8, w=10, h=6 },
+        punch_left_2 = { ox=-12, oy=-8, w=10, h=6 },
+        punch_left_3 = { ox=-13, oy=-12, w=11, h=12 },
     }
 
     -- #region player entity
@@ -137,10 +137,11 @@ function player_contol(_e)
 
     local as = {punch_right_1=true, punch_right_2=true, punch_right_3=true, punch_left_1=true, punch_left_2=true, punch_left_3=true, swing_right=true, swing_left=true, shoot=true}
     local is_attacking = as[_e.state.current] or false
+    local is_dead = _e.state.current=="_death"
 
     -- player movement
-    _e.intention.left = not is_attacking and btn(_e.control.left)
-    _e.intention.right = not is_attacking and btn(_e.control.right)
+    _e.intention.left = not(is_dead or is_attacking) and btn(_e.control.left)
+    _e.intention.right = not(is_dead or is_attacking) and btn(_e.control.right)
     _e.intention.is_moving = _e.intention.left or _e.intention.right
 
     -- check for interaction

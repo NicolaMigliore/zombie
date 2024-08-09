@@ -73,7 +73,7 @@ function _ui_d()
 
     -- level indicator
     print("level:"..level,7,105,6)
-
+    pal()
     palt()
 end
 

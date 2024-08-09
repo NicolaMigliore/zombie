@@ -8,7 +8,7 @@ function _scene_level_u()
     particle_system.update()
 
     -- move camera
-    gamecamera.position.x = min(896,max(0,player.position.x - 30))
+    gamecamera.position.x = min(896,max(1,player.position.x - 30))
 
     camera(gamecamera.position.x+flr(shake_x),flr(shake_y))
 
