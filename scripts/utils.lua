@@ -41,8 +41,9 @@ end
 function get_entity(_id)
     if (entities == nil or #entities == 0) return nil
     local i, ent = 1, nil
-    while i < #entities and ent == nil do
-        if (entities[i].id == _id) ent = entities[i] i += 1
+    while i <= #entities and ent == nil do
+        if (entities[i].id == _id) ent = entities[i]
+        i += 1
     end
     return ent
 end
