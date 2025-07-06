@@ -33,7 +33,7 @@ function spawn_bullet(x,d)
         code="bulle",
         position=new_position(x,68,2,1),
         sprite=new_sprite({sprites={{x=8,y=96,w=2,h=1,ox=0,oy=0,fx=false,fy=false}},pal_rep={{10,6}}}),
-        intention=new_intention(),
+        inte=new_inte(),
         control=new_control({spd_x=spd,control_func=bullet_control}),
         state=new_state(bullet_states,"travel"),
         battle=new_battle(bullet_hitboxes,{},{health=100,damage=70}),

@@ -169,7 +169,7 @@ function create_control_system()
         update = function()
             if(log_systems)log(time().." - running constrol system")
             foreach_entity(function(e)
-                -- update entity movement intention
+                -- update entity movement inte
                 if e.control and e.control.control then
                     e.control.control(e)
                 end
@@ -192,19 +192,19 @@ function create_physics_system()
             -- apply gravity
             -- *does not apply...*
 
-            -- update entity movement intention
-            if e.position and e.intention then
+            -- update entity movement inte
+            if e.position and e.inte then
                 local spd_x = e.control and e.control.spd_x or 0.5
                 local direction_x = 0
                 local can_move_x = true
                 local new_x = e.position.x
 
                 -- left movement
-                if e.intention.left then
+                if e.inte.left then
                     direction_x = -1
                 end
                 -- right movement
-                if e.intention.right then
+                if e.inte.right then
                     -- new_x += 1 * spd_x
                     direction_x = 1
                 end
@@ -437,6 +437,18 @@ function draw_f(f, p, fx, fw)
         local x = bx + s.ox
         local y = p.y + s.oy
         if fx then x = bx + (fw - s.ox - s.w) end
+
+        -- outline
+        for i=1,15 do
+            pal(i,2)
+        end
+        sspr(s.x, s.y, s.w, s.h, x-1, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
+        sspr(s.x, s.y, s.w, s.h, x+1, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
+        sspr(s.x, s.y, s.w, s.h, x, y-1, s.w, s.h, fx and not s.fx or s.fx, s.fy)
+        sspr(s.x, s.y, s.w, s.h, x, y+1, s.w, s.h, fx and not s.fx or s.fx, s.fy)
+        pal()
+
+
         sspr(s.x, s.y, s.w, s.h, x, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
     end
 

@@ -1,4 +1,4 @@
--- #region position component ---
+-- #region position
 -- @param _x | x coordinate
 -- @param _y | y coordinate
 -- @param _z | z coordinate
@@ -17,7 +17,7 @@ function new_position(_x,_y,_w,_h,_z)
     return p
 end
 
--- #region sprite component ---
+-- #region sprite
 -- @param _sprite | sprites object in the form {{ x = <x coord>, y = <y coord> ,w = <sprite width in pixels>,h = <sprite height in pixels>,pal_rep = <palette replacent list {{c1,c2}}> }}
 -- @param _flip_x | boolean to describe if the sprite should be flipped on the x axis
 -- @param _flip_y | boolean to describe if the sprite should be flipped on the y axis
@@ -31,7 +31,7 @@ function new_sprite(_sprites,_flip_x,_flip_y)
     return s
 end
 
--- #region animation component ---
+-- #region animation
 -- @param _animations | table of animations in the form { <anim_name> = { frames = <list of sprite object>, speed = <animation speed>, loop = <define if animation should be looped> }  }
 -- @param _active_anim | name of currently active animation
 -- @param _set_anim | function to control currently active animation
@@ -44,7 +44,7 @@ function new_animation(_animations,_active_anim,_set_anim,_timer)
     }
     a.set_animation = _set_anim
     a.max_frame_w = 1
-    a.add_animation = function (_anim_name,_frame_str,_speed,_loop)
+    a.add_anim = function (_anim_name,_frame_str,_speed,_loop)
         a.animations[_anim_name] = {
             frames = str2frames(_frame_str),
             speed = _speed,
@@ -63,7 +63,7 @@ function check_animation_ended(_e, _anim_name)
     return _e.animation.i > #_e.animation.animations[_anim_name].frames
 end
 
--- #region state component ---
+-- #region state
 -- @param initial_state | initial state of the entity
 -- @param state_controllers | table of function to call to check state rules and assign the state.
 --  In the form { <state_name> = <rule function> }
@@ -78,7 +78,7 @@ function new_state(_rules,_initial_state)
     return s
 end
 
--- #region control component
+-- #region control
 -- @param _left | reference to left button
 -- @param _right | reference to right button
 -- @param _up | reference to up button
@@ -101,9 +101,9 @@ function new_control(_opts)
     return c
 end
 
--- #region intention component
--- describes the entity's intention to move in a direction
-function new_intention()
+-- #region intention
+-- describes the entity's inte to move in a direction
+function new_inte()
     local i = {
         left = false,
         right = false,
@@ -120,7 +120,7 @@ function new_intention()
     return i
 end
 
--- #region battle component
+-- #region battle
 function new_battle(_hitboxes,_hurtboxes,_opts)
     local health = _opts.health or 100
     local b ={
@@ -146,7 +146,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
     return b
 end
 
--- #region collider box component
+-- #region collider box
 -- @param _ox | x offset relative to the entity position
 -- @param _oy | y offset relative to the entity position
 -- @param _w | width of the collider box
@@ -192,7 +192,7 @@ function new_collider(_ox,_oy,_w,_h,_opts)
     return c
 end
 
--- #region trigger box component
+-- #region trigger box
 -- @param _ox | x offset relative to the entity position
 -- @param _oy | y offset relative to the entity position
 -- @param _w | width of the collider box
@@ -215,7 +215,7 @@ function new_trigger(_ox,_oy,_w,_h,_ontrigger,_kind)
     return t
 end
 
--- #region inventory component
+-- #region inventory
 function new_inventory(_size,_visible,_x,_y,_items)
     local items = _items or {}
     local i = {
@@ -230,7 +230,7 @@ function new_inventory(_size,_visible,_x,_y,_items)
     return i
 end
 
--- #region create entity ---
+-- #region create entity
 function new_entity(_opts)
     local e = {
         id = new_guid(_opts.code),
@@ -238,7 +238,7 @@ function new_entity(_opts)
         position = _opts.position,
         sprite = _opts.sprite,
         control = _opts.control,
-        intention = _opts.intention,
+        inte = _opts.inte,
         collider = _opts.collider,
         animation = _opts.animation,
         triggers = _opts.triggers,
@@ -249,7 +249,7 @@ function new_entity(_opts)
     return e
 end
 
--- #region create particle --
+-- #region create particle
 function new_particle(_kind,_pos,_dx,_dy,_max_age,_colors,_max_size,_opts)
     local p = {
         position = _pos,

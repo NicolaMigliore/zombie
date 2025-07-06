@@ -2,40 +2,34 @@ function _player_i()
     player_combo = false
     -- #region player animation
     local player_animation = {}
-    -- local p1 = "82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|91,0,11,6,6,-5@26,8,9,8,8,-12@114,0,16,4,4,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@118,4,12,3,8,-5^3:7,4:7,9:7,12:7,13:7,15:7|91,0,11,6,6,-5@16,8,10,8,8,-12@117,7,13,5,8,-6^3:6,4:6,9:6,12:6,13:6,15:6|91,0,11,6,6,-5@26,8,9,8,8,-12@117,7,13,5,9,-6^3:7,4:7,9:7,12:7,13:7,15:7|91,0,11,6,6,-5@26,8,9,8,8,-12@125,12,4,3,17,-5"
-    -- local p2 = "26,8,9,8,10,-11@91,0,11,6,7,-5|26,8,9,8,10,-11@91,0,11,6,7,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@109,15,8,6,10,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@117,15,6,5,12,-5^3:7,4:7,9:7,12:7,13:7,15:7|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5^3:6,4:6,9:6,12:6,13:6,15:6|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5^3:7,4:7,9:7,12:7,13:7,15:7|96,7,7,7,5,-6@26,8,9,8,2,-11,true,false@126,16,2,3,17,-5|44,14,7,9,5,-8@16,0,10,8,1,-11"
-    -- local p3 = "44,14,7,9,5,-8@16,0,10,8,1,-11|103,7,8,6,6,-5@26,8,9,8,5,-12|51,14,8,10,8,-9@16,0,10,8,6,-14@112,22,5,10,14,-11|51,14,8,10,8,-9@16,0,10,8,6,-14@117,22,3,10,15,-10|51,14,8,10,8,-9@26,0,9,8,6,-14@120,22,5,8,14,-11|44,0,8,6,6,-5@16,0,10,8,6,-13@125,22,3,4,14,-14"
     local p1 = "82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|91,0,11,6,6,-5@26,8,9,8,8,-12@114,0,16,4,4,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@118,4,12,3,8,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@117,7,13,5,8,-6|91,0,11,6,6,-5@26,8,9,8,8,-12@117,7,13,5,9,-6|91,0,11,6,6,-5@26,8,9,8,8,-12@125,12,4,3,17,-5"
     local p2 = "26,8,9,8,10,-11@91,0,11,6,7,-5|26,8,9,8,10,-11@91,0,11,6,7,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@109,15,8,6,10,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@117,15,6,5,12,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5|96,7,7,7,5,-6@26,8,9,8,2,-11,true,false@126,16,2,3,17,-5|44,14,7,9,5,-8@16,0,10,8,1,-11"
     local p3 = "44,14,7,9,5,-8@16,0,10,8,1,-11|103,7,8,6,6,-5@26,8,9,8,5,-12|51,14,8,10,8,-9@16,0,10,8,6,-14@112,22,5,10,14,-11|51,14,8,10,8,-9@16,0,10,8,6,-14@117,22,3,10,15,-10|51,14,8,10,8,-9@26,0,9,8,6,-14@120,22,5,8,14,-11|44,0,8,6,6,-5@16,0,10,8,6,-13@125,22,3,4,14,-14"
 
     local ac = new_animation(player_animation,"idle")
-    ac.add_animation("idle","44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13",0.2,true)
-    ac.add_animation("_damaged","44,0,8,6,0,-5@26,0,9,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12^9:7,15:7,4:7,6:7,12:7|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@16,0,10,8,0,-13",0.03,false)
-    ac.add_animation("_death","59,14,8,7,0,-6|67,14,8,6,0,-5|75,15,8,5,0,-4|83,17,8,3,0,-2|83,17,8,3,0,-2|83,17,8,3,0,-2",.3,false)
-    ac.add_animation("run","44,7,7,5,0,-5@26,0,9,8,0,-13|51,7,5,6,0,-5@26,0,9,8,0,-12|56,7,6,7,0,-6@16,0,10,8,0,-14|62,7,8,5,0,-7@16,0,10,8,0,-15|70,7,7,5,0,-5@26,0,9,8,0,-13|77,7,5,5,0,-4@26,0,9,8,0,-11|82,7,6,7,0,-6@16,0,10,8,0,-14|88,7,8,5,0,-7@16,0,10,8,0,-15",0.15,true)
+    ac.add_anim("idle","44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13",0.2,true)
+    ac.add_anim("_damaged","44,0,8,6,0,-5@26,0,9,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12^9:7,15:7,4:7,6:7,12:7|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@16,0,10,8,0,-13",0.03,false)
+    ac.add_anim("_death","59,14,8,7,0,-6|67,14,8,6,0,-5|75,15,8,5,0,-4|83,17,8,3,0,-2|83,17,8,3,0,-2|83,17,8,3,0,-2",.3,false)
+    ac.add_anim("run","44,7,7,5,0,-5@26,0,9,8,0,-13|51,7,5,6,0,-5@26,0,9,8,0,-12|56,7,6,7,0,-6@16,0,10,8,0,-14|62,7,8,5,0,-7@16,0,10,8,0,-15|70,7,7,5,0,-5@26,0,9,8,0,-13|77,7,5,5,0,-4@26,0,9,8,0,-11|82,7,6,7,0,-6@16,0,10,8,0,-14|88,7,8,5,0,-7@16,0,10,8,0,-15",0.15,true)
 
-    ac.add_animation("punch_right_1",p1,.05,false)
-    ac.add_animation("punch_right_2",p2,.05,false)
-    ac.add_animation("punch_right_3",p3,.05,false)
-    ac.add_animation("punch_left_1",p1,.05,false)
-    ac.add_animation("punch_left_2",p2,.05,false)
-    ac.add_animation("punch_left_3",p3,.05,false)
-    ac.add_animation("shoot","60,0,8,7,4,-5@26,0,9,8,4,-13|68,0,6,7,5,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@35,8,9,8,3,-13@96,14,5,5,13,-7|74,0,7,7,6,-5@35,8,9,8,3,-13@102,14,6,3,13,-6|74,0,7,7,6,-5@26,0,9,8,3,-13@125,12,3,3,16,-6",.05,false)
-
-    
-
+    ac.add_anim("punch_right_1",p1,.05,false)
+    ac.add_anim("punch_right_2",p2,.05,false)
+    ac.add_anim("punch_right_3",p3,.05,false)
+    ac.add_anim("punch_left_1",p1,.05,false)
+    ac.add_anim("punch_left_2",p2,.05,false)
+    ac.add_anim("punch_left_3",p3,.05,false)
+    ac.add_anim("shoot","60,0,8,7,4,-5@26,0,9,8,4,-13|68,0,6,7,5,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@35,8,9,8,3,-13@96,14,5,5,13,-7|74,0,7,7,6,-5@35,8,9,8,3,-13@102,14,6,3,13,-6|74,0,7,7,6,-5@26,0,9,8,3,-13@125,12,3,3,16,-6",.05,false)
 
     -- #region player state
     local player_states = {
         idle = function(_e)
             player_combo = false
             _e.state.can_attack = true
-            if(_e.intention.left) _e.position.dx=-1 return 'run'
-            if(_e.intention.right) _e.position.dx=1 return 'run'
-            if _e.intention.x then 
-                _e.intention.right=false
-                _e.intention.left=false
+            if(_e.inte.left) _e.position.dx=-1 return 'run'
+            if(_e.inte.right) _e.position.dx=1 return 'run'
+            if _e.inte.x then 
+                _e.inte.right=false
+                _e.inte.left=false
                 return get_player_attack_state(_e)
             end
             return "idle"
@@ -57,13 +51,13 @@ function _player_i()
         run = function(_e)
             _e.state.can_attack = true
             _e.sprite.flip_x=_e.position.dx<=0
-            if _e.intention.x then 
-                _e.intention.right=false
-                _e.intention.left=false
+            if _e.inte.x then 
+                _e.inte.right=false
+                _e.inte.left=false
                 return get_player_attack_state(_e)
             end
-            if(_e.intention.right) _e.position.dx = 1 return "run"
-            if(_e.intention.left) _e.position.dx = -1 return "run"
+            if(_e.inte.right) _e.position.dx = 1 return "run"
+            if(_e.inte.left) _e.position.dx = -1 return "run"
             return "idle"
         end,
         punch_right_1 = function(_e) return punch_state(_e, "punch_right_1", true) end,
@@ -120,7 +114,7 @@ function _player_i()
             x = ❎,
             control_func = player_contol
         }),
-        intention = new_intention(),
+        inte = new_inte(),
         collider = new_collider(-4,-12,7,12,{}),
         state = new_state(player_states,"idle"),
         battle = new_battle(player_hitboxes,player_hurtboxes,{health=100, damage=1, cd_time= 45}),
@@ -133,22 +127,22 @@ end
 -- #region player control
 function player_contol(_e)
     -- player attack
-    _e.intention.x = btnp(_e.control.x)
+    _e.inte.x = btnp(_e.control.x)
 
     local as = {punch_right_1=true, punch_right_2=true, punch_right_3=true, punch_left_1=true, punch_left_2=true, punch_left_3=true, swing_right=true, swing_left=true, shoot=true}
     local is_attacking = as[_e.state.current] or false
     local is_dead = _e.state.current=="_death"
 
     -- player movement
-    _e.intention.left = not(is_dead or is_attacking) and btn(_e.control.left)
-    _e.intention.right = not(is_dead or is_attacking) and btn(_e.control.right)
-    _e.intention.is_moving = _e.intention.left or _e.intention.right
+    _e.inte.left = not(is_dead or is_attacking) and btn(_e.control.left)
+    _e.inte.right = not(is_dead or is_attacking) and btn(_e.control.right)
+    _e.inte.is_moving = _e.inte.left or _e.inte.right
 
     -- check for interaction
     local cel_x = flr((_e.position.x)/8)
     if fget(mget(cel_x,8),0) then
         local is_interacting = btnp(_e.control.o)
-        _e.intention.o = is_interacting
+        _e.inte.o = is_interacting
         if is_interacting then
             loot((cel_x*8)+4, 64)
             mset(cel_x,8,200)
@@ -264,7 +258,7 @@ function punch_state(_e, state_name, can_combo)
         _e.state.can_attack = true
     end
 
-    if _e.intention.x and player_combo then
+    if _e.inte.x and player_combo then
         if _e.state.can_attack then 
             return get_player_attack_state(_e)
         else
