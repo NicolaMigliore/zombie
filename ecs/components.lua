@@ -25,8 +25,8 @@ end
 function new_sprite(_sprites,_flip_x,_flip_y)
     local s = {
         sprites = _sprites,
-        flip_x = _flip_x or false,
-        flip_y = _flip_y or false,
+        fx = _flip_x or false,
+        fy = _flip_y or false,
     }
     return s
 end
@@ -34,33 +34,26 @@ end
 -- #region animation
 -- @param _animations | table of animations in the form { <anim_name> = { frames = <list of sprite object>, speed = <animation speed>, loop = <define if animation should be looped> }  }
 -- @param _active_anim | name of currently active animation
--- @param _set_anim | function to control currently active animation
-function new_animation(_animations,_active_anim,_set_anim,_timer)
+function new_animation(_animations,_active_anim)
     local a = {
         animations = _animations,
         active_anim = _active_anim,
         frame_t = 0,
         i = 1,
     }
-    a.set_animation = _set_anim
-    a.max_frame_w = 1
-    a.add_anim = function (_anim_name,_frame_str,_speed,_loop)
-        a.animations[_anim_name] = {
-            frames = str2frames(_frame_str),
-            speed = _speed,
-            loop = _loop or false
+    a.add_anim_new = function (name,frames,speed,loop)
+        a.animations[name] = {
+            frames = frames,
+            speed = speed,
+            loop = loop or false
         }
     end
-    a.progress_percentage = function ()
+    a.prog = function ()
         local cur = a.animations[a.active_anim]
         return (a.i - 1 + (a.frame_t / (cur.speed * 60))) / #cur.frames
     end
 
     return a
-end
--- check if the given animation has ended
-function check_animation_ended(_e, _anim_name)
-    return _e.animation.i > #_e.animation.animations[_anim_name].frames
 end
 
 -- #region state
@@ -70,8 +63,8 @@ end
 --  Rule function should return true or false
 function new_state(_rules,_initial_state)
     local s = {
-        current = _initial_state,
-        previous = _initial_state,
+        curr = _initial_state,
+        prev = _initial_state,
         rules = _rules,
         can_attack = false,
     }
@@ -96,7 +89,7 @@ function new_control(_opts)
         x = _opts.x,
         spd_x = _opts.spd_x,
         spd_y = _opts.spd_y,
-        control = _opts.control_func
+        fn = _opts.control_func
     }
     return c
 end
@@ -114,8 +107,9 @@ function new_inte()
         -- attack_1 = false,
         -- attack_2 = false,
         is_moving = false,
-        is_jumping = false,
-        is_falling = false
+
+        -- input buffering
+        queue_attack = false,
     }
     return i
 end
@@ -131,7 +125,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
         cd_time = _opts.cd_time or 180,
         cooldown = _opts.cd_time or 0,
         damage = _opts.damage or 20,
-        knock = false,
+        knock = 0,
         get_box = function(_pos,_box)
             --- @param _pos: poistion component
             --- @param _box: hitbox or hurtbox item
@@ -154,13 +148,10 @@ end
 -- @param _opts | options of the collider, including
 --  - is_solid: if the entity is solid and should collide
 --  - gravity: if the entity is effected by gravity
---  - mass: the mass of the entity
 function new_collider(_ox,_oy,_w,_h,_opts)
-    -- calculate defaults
-    local is_solid,gravity,mass,can_collide = true, true, 1, true
+    local is_solid,gravity,can_collide = true, true, true
     if (_opts.is_solid != nil) is_solid = _opts.is_solid
     if (_opts.gravity != nil) gravity = _opts.gravity
-    if (_opts.mass != nil) mass = _opts.mass
     if (_opts.can_collide != nil) can_collide = _opts.can_collide
 
     local c = {
@@ -168,15 +159,9 @@ function new_collider(_ox,_oy,_w,_h,_opts)
         oy = _oy,
         w = _w,
         h = _h,
-        collide_r = false,
-        collide_l = false,
-        collide_t = false,
-        collide_b = false,
         gravity = gravity,
         show = false,
         has_collision = false,
-        is_falling = gravity,
-        mass = mass,
         is_solid = is_solid,
         can_collide = can_collide,
     }

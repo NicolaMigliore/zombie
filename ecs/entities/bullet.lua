@@ -28,23 +28,27 @@ function spawn_bullet(x,d)
         hit = {ox=0,oy=0,w=2,h=1}
     }
 
-    add(entities,new_entity({
+    local b = new_entity({
         kind="bullet",
         code="bulle",
         position=new_position(x,68,2,1),
-        sprite=new_sprite({sprites={{x=8,y=96,w=2,h=1,ox=0,oy=0,fx=false,fy=false}},pal_rep={{10,6}}}),
         inte=new_inte(),
         control=new_control({spd_x=spd,control_func=bullet_control}),
         state=new_state(bullet_states,"travel"),
         battle=new_battle(bullet_hitboxes,{},{health=100,damage=70}),
         collider=new_collider(0,0,2,1,{is_solid=false}),
-    }))
+    })
+    b.draw=function(s)
+            local p=s.position
+            rectfill(p.x,p.y,p.x+2,p.y+1,9)
+        end
+    add(entities,b)
 end
 
 function bullet_control(e)
     e.position.x += e.control.spd_x
     if abs(e.position.x-player.position.x)>130 then
-        e.state.previous=e.state.current
-        e.state.current="_death"
+        e.state.prev=e.state.curr
+        e.state.curr="_death"
     end
 end

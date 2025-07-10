@@ -18,14 +18,14 @@ function _scene_level_u()
         local nz = min(flr(2 + level*0.5),5)
         local spawn = rnd(nz)/nz > 0.8 - (level / 50)
         if(spawn and #entities < 15) spawn_pack(nz)
-
+        
         -- reset timer
         spawn_timer = 0
     end
 end
 
 function _scene_level_d()
-    graphics_system.update({bg_color=1,draw_level=draw_level})
+    graphics_system.update({bg_color=13,draw_level=draw_level})
     _ui_d()
 end
 

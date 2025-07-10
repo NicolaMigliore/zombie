@@ -1,5 +1,5 @@
 function log(_text, override)
-    printh(_text, "jack_vs_zombies/log", override or false)
+    printh(_text, "log", override or false)
 end
 
 --- sort the elements
@@ -48,95 +48,59 @@ function get_entity(_id)
     return ent
 end
 
--- converts anything to string, even nested tables
-function tostring(any)
-    if type(any) == "function" then
-        return "function"
-    end
-    if any == nil then
-        return "nil"
-    end
-    if type(any) == "string" then
-        return any
-    end
-    if type(any) == "boolean" then
-        if any then return "true" end
-        return "false"
-    end
-    if type(any) == "table" then
-        local str = "{ "
-        for k, v in pairs(any) do
-            str = str .. tostring(k) .. "->" .. tostring(v) .. " "
-        end
-        return str .. "}"
-    end
-    if type(any) == "number" then
-        return "" .. any
-    end
-    return "unkown"
-    -- should never show
-end
-
-function str2frames(_str)
-    local frames = {}
-    for str_f in all(split(_str, "|")) do
-        local frame = { sprites = {}, pal_rep = {} }
-        local parts = split(str_f, "^")
-
-        -- Handle sprites part
-        for str_s in all(split(parts[1], "@")) do
-            local params = split(str_s, ",")
-            local sprite = list2sprite(params)
-            add(frame.sprites, sprite)
-        end
-
-        -- Handle palette replacements if they exist
-        if #parts > 1 then
-            for str_p in all(split(parts[2], ",")) do
-                local pal_pair = split(str_p, ":")
-                add(frame.pal_rep, { pal_pair[1], pal_pair[2] })
-            end
-        end
-
-        add(frames, frame)
-    end
-    return frames
-end
-function frames2str(_frames)
-    local ret = ""
-    for i, frame in pairs(_frames) do
-        -- Convert sprites part to string
-        local frame_str = ""
-        for j, sprite in pairs(frame.sprites) do
-            frame_str = frame_str .. sprite.x .. "," .. sprite.y .. "," .. sprite.w .. "," .. sprite.h .. "," .. sprite.ox .. "," .. sprite.oy .. "," .. tostring(sprite.fx) .. "," .. tostring(sprite.fy)
-            if j < #frame.sprites then
-                frame_str = frame_str .. "@"
-            end
-        end
-
-        -- Convert palette replacements to string
-        local pal_str = ""
-        if #frame.pal_rep > 0 then
-            pal_str = "^"
-            for k, pal in pairs(frame.pal_rep) do
-                pal_str = pal_str .. pal[1] .. ":" .. pal[2]
-                if k < #frame.pal_rep then
-                    pal_str = pal_str .. ","
-                end
-            end
-        end
-
-        -- Combine frame_str and pal_str
-        ret = ret .. frame_str .. pal_str
-        if i < #_frames then
-            ret = ret .. "|"
-        end
-    end
-    return ret
-end
 -- Your provided list2sprite function
 function list2sprite(_list)
     local fx = _list[7] == "true"
     local fy = _list[8] == "true"
     return { x = _list[1], y = _list[2], w = _list[3], h = _list[4], ox = _list[5], oy = _list[6], fx = fx, fy = fy }
+end
+
+function str2frames(s)
+    local frames = {}
+    for fs in all(split(s,'|')) do
+        local xy=split(fs)
+        add(frames,pack(xy[1],xy[2],16,16))
+    end
+    return frames
+end
+
+function ssprc(sx,sy,sw,sh,dx,dy,dw,dh,fx,fy,a,oc)
+    local dw=dw or sw
+    local dh=dh or sh
+    local a = a or 'cb' --alignment
+    local x,y=dx,dy
+    if a=='cb' then
+        x=dx-flr(dw/2)
+        y=dy-dh
+    elseif a=='b' then
+        y=dy-dh
+    end
+ 
+    if oc then
+        for i=1,15 do
+            pal(i,oc)
+        end
+
+        sspr(sx,sy,sw,sh,x-1,y,dw,dh,fx,fy)
+        sspr(sx,sy,sw,sh,x+1,y,dw,dh,fx,fy)
+        sspr(sx,sy,sw,sh,x,y-1,dw,dh,fx,fy)
+        sspr(sx,sy,sw,sh,x,y+1,dw,dh,fx,fy)
+        pal()
+    end
+
+    sspr(sx,sy,sw,sh,x,y,dw,dh,fx,fy)
+end
+
+function tableout(t,deep)
+ deep=deep or 0
+ local str=sub("    ",1,deep)
+ log(str.."table size: "..#t) 
+ for k,v in pairs(t) do
+   if type(v)=="table" then
+     log(str..tostr(k).."[]")
+     tableout(v,deep+1)
+   else
+     log(str..tostr(k).." = "..tostr(v))
+   end
+ end
 end

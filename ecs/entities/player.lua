@@ -1,24 +1,24 @@
 function _player_i()
     player_combo = false
+    local pos = new_position(22,0,16,16,4)
     -- #region player animation
     local player_animation = {}
-    local p1 = "82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|82,0,9,6,1,-5@26,0,9,8,0,-13|91,0,11,6,6,-5@26,8,9,8,8,-12@114,0,16,4,4,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@118,4,12,3,8,-5|91,0,11,6,6,-5@16,8,10,8,8,-12@117,7,13,5,8,-6|91,0,11,6,6,-5@26,8,9,8,8,-12@117,7,13,5,9,-6|91,0,11,6,6,-5@26,8,9,8,8,-12@125,12,4,3,17,-5"
-    local p2 = "26,8,9,8,10,-11@91,0,11,6,7,-5|26,8,9,8,10,-11@91,0,11,6,7,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@109,15,8,6,10,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@117,15,6,5,12,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5|102,0,9,7,8,-6@0,16,10,8,1,-11@123,16,5,5,14,-5|96,7,7,7,5,-6@26,8,9,8,2,-11,true,false@126,16,2,3,17,-5|44,14,7,9,5,-8@16,0,10,8,1,-11"
-    local p3 = "44,14,7,9,5,-8@16,0,10,8,1,-11|103,7,8,6,6,-5@26,8,9,8,5,-12|51,14,8,10,8,-9@16,0,10,8,6,-14@112,22,5,10,14,-11|51,14,8,10,8,-9@16,0,10,8,6,-14@117,22,3,10,15,-10|51,14,8,10,8,-9@26,0,9,8,6,-14@120,22,5,8,14,-11|44,0,8,6,6,-5@16,0,10,8,6,-13@125,22,3,4,14,-14"
-
     local ac = new_animation(player_animation,"idle")
-    ac.add_anim("idle","44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@16,0,10,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13",0.2,true)
-    ac.add_anim("_damaged","44,0,8,6,0,-5@26,0,9,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@26,0,9,8,0,-13|52,0,8,5,0,-4@35,0,9,8,0,-12^9:7,15:7,4:7,6:7,12:7|52,0,8,5,0,-4@35,0,9,8,0,-12|44,0,8,6,0,-5@16,0,10,8,0,-13^9:7,15:7,4:7,6:7,12:7|44,0,8,6,0,-5@16,0,10,8,0,-13",0.03,false)
-    ac.add_anim("_death","59,14,8,7,0,-6|67,14,8,6,0,-5|75,15,8,5,0,-4|83,17,8,3,0,-2|83,17,8,3,0,-2|83,17,8,3,0,-2",.3,false)
-    ac.add_anim("run","44,7,7,5,0,-5@26,0,9,8,0,-13|51,7,5,6,0,-5@26,0,9,8,0,-12|56,7,6,7,0,-6@16,0,10,8,0,-14|62,7,8,5,0,-7@16,0,10,8,0,-15|70,7,7,5,0,-5@26,0,9,8,0,-13|77,7,5,5,0,-4@26,0,9,8,0,-11|82,7,6,7,0,-6@16,0,10,8,0,-14|88,7,8,5,0,-7@16,0,10,8,0,-15",0.15,true)
-
-    ac.add_anim("punch_right_1",p1,.05,false)
-    ac.add_anim("punch_right_2",p2,.05,false)
-    ac.add_anim("punch_right_3",p3,.05,false)
-    ac.add_anim("punch_left_1",p1,.05,false)
-    ac.add_anim("punch_left_2",p2,.05,false)
-    ac.add_anim("punch_left_3",p3,.05,false)
-    ac.add_anim("shoot","60,0,8,7,4,-5@26,0,9,8,4,-13|68,0,6,7,5,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@26,0,9,8,3,-13|74,0,7,7,6,-5@35,8,9,8,3,-13@96,14,5,5,13,-7|74,0,7,7,6,-5@35,8,9,8,3,-13@102,14,6,3,13,-6|74,0,7,7,6,-5@26,0,9,8,3,-13@125,12,3,3,16,-6",.05,false)
+    ac.add_anim_new('idle',str2frames('16,0|32,0|32,0|48,0'),.2,true)
+    ac.add_anim_new('run',str2frames('64,0|80,0|96,0|112,0'),.2,true)
+    ac.add_anim_new('_damaged',str2frames('32,0|32,0|48,0'),.2,false)
+    ac.add_anim_new('_death',{{32,8,16,8}},.5,false)
+    local p1s,p2s,p3s = '0,16|0,16|0,16|0,16|16,16|32,16|48,16|48,16',
+    '64,16|64,16|64,16|80,16|96,16|112,16|112,16',
+    '0,32|0,32|0,32|0,32|16,32|32,32|48,32|48,32'
+    local p1,p2,p3 = str2frames(p1s),str2frames(p2s),str2frames(p3s)
+    ac.add_anim_new('punch_right_1',p1,.06,false)
+    ac.add_anim_new('punch_right_2',p2,.06,false)
+    ac.add_anim_new('punch_right_3',p3,.06,false)
+    ac.add_anim_new('punch_left_1',p1,.06,false)
+    ac.add_anim_new('punch_left_2',p2,.06,false)
+    ac.add_anim_new('punch_left_3',p3,.06,false)
+    ac.add_anim_new('shoot',str2frames('64,32|64,32|64,32|64,32|80,32|96,32|112,32|112,32'),.05,false)
 
     -- #region player state
     local player_states = {
@@ -35,12 +35,12 @@ function _player_i()
             return "idle"
         end,
         _damaged = function(_e)
-            local prog = _e.animation.progress_percentage()
+            local prog = _e.animation.prog()
             if(prog>1) return "idle"
             return "_damaged"
         end,
         _death = function(_e)
-            if _e.animation.progress_percentage()>1 then
+            if _e.animation.prog()>1 then
                 del(entities,_e)
                 load_scene_death()
             else
@@ -50,7 +50,7 @@ function _player_i()
         end,
         run = function(_e)
             _e.state.can_attack = true
-            _e.sprite.flip_x=_e.position.dx<=0
+            _e.sprite.fx=_e.position.dx<=0
             if _e.inte.x then 
                 _e.inte.right=false
                 _e.inte.left=false
@@ -67,8 +67,7 @@ function _player_i()
         punch_left_2 = function(_e) return punch_state(_e, "punch_left_2", true) end,
         punch_left_3 = function(_e) return punch_state(_e, "punch_left_3", false) end,
         shoot = function(_e)
-            local p=_e.animation.progress_percentage()
-            if p>1 then return "idle" end
+            local p=_e.animation.prog()
             if p>.8 and not player_combo then
                 player_combo=true
                 if _e.inventory.bullets>0 then
@@ -78,7 +77,7 @@ function _player_i()
                     -- todo: fx for missing bullets
                 end
             end
-            return "shoot"
+            return punch_state(_e, "shoot", false)
         end
     }
     -- #region player battle
@@ -89,20 +88,20 @@ function _player_i()
         shoot = p_hb,
     }
     local player_hitboxes = {
-        punch_right_1 = { ox=2, oy=-8, w=10, h=6 },
-        punch_right_2 = { ox=2, oy=-8, w=10, h=6 },
-        punch_right_3 = { ox=3, oy=-12, w=11, h=12 },
-        punch_left_1 = { ox=-12, oy=-8, w=10, h=6 },
-        punch_left_2 = { ox=-12, oy=-8, w=10, h=6 },
-        punch_left_3 = { ox=-13, oy=-12, w=11, h=12 },
+        punch_right_1 = { ox=2, oy=-8, w=10, h=6, active_frames={5,6,7} },
+        punch_right_2 = { ox=2, oy=-8, w=10, h=6, active_frames={5,6,7} },
+        punch_right_3 = { ox=3, oy=-12, w=11, h=12, active_frames={5,6,7} },
+        punch_left_1 = { ox=-12, oy=-8, w=10, h=6, active_frames={5,6,7} },
+        punch_left_2 = { ox=-12, oy=-8, w=10, h=6, active_frames={5,6,7} },
+        punch_left_3 = { ox=-13, oy=-12, w=11, h=12, active_frames={5,6,7} },
     }
 
     -- #region player entity
     player = new_entity({
         kind = "player",
         code = "playe",
-        position = new_position(22,0,16,16,4),
-        sprite = new_sprite({{x=16,y=0,w=16,h=16}}),
+        position = pos,
+        sprite = new_sprite(),
         animation = ac,
         control = new_control({
             left = ⬅️,
@@ -118,7 +117,6 @@ function _player_i()
         collider = new_collider(-4,-12,7,12,{}),
         state = new_state(player_states,"idle"),
         battle = new_battle(player_hitboxes,player_hurtboxes,{health=100, damage=1, cd_time= 45}),
-        --inventory = new_inventory(3,true,2,98,{})
         inventory = new_inventory(2,true,50,96,{})
     })
     add(entities,player)
@@ -126,12 +124,23 @@ end
 
 -- #region player control
 function player_contol(_e)
-    -- player attack
-    _e.inte.x = btnp(_e.control.x)
+    local attack_pressed = btnp(_e.control.x)
 
     local as = {punch_right_1=true, punch_right_2=true, punch_right_3=true, punch_left_1=true, punch_left_2=true, punch_left_3=true, swing_right=true, swing_left=true, shoot=true}
-    local is_attacking = as[_e.state.current] or false
-    local is_dead = _e.state.current=="_death"
+    local is_attacking = as[_e.state.curr] or false
+    local is_dead = _e.state.curr=="_death"
+    
+    -- buffer input
+    if attack_pressed then
+        local anim_perc = _e.animation.prog()
+        if  is_attacking and anim_perc > .5 then
+            -- try to queue the attack
+            _e.inte.queue_attack = true
+        else
+            -- begin attack
+            _e.inte.x = (not is_attacking) and attack_pressed
+        end
+    end
 
     -- player movement
     _e.inte.left = not(is_dead or is_attacking) and btn(_e.control.left)
@@ -166,20 +175,24 @@ function get_player_attack_state(_e)
     local eq=_e.inventory.items[_e.inventory.active_i]
     if not eq or eq.kind=="gloves" then
         _e.battle.damage=10
-        _e.battle.knock=false
+        _e.battle.knock=5
         sfx(14)
-        local ns={
-            punch_right_1={s="punch_right_2",d=12},
-            punch_right_2={s="punch_right_3",d=15,k=true},
-            punch_left_1={s="punch_left_2",d=12},
-            punch_left_2={s="punch_left_3",d=15,k=true}
+        -- next state table
+        local nst={
+            punch_right_1={s="punch_right_2",d=12,k=3},
+            punch_right_2={s="punch_right_3",d=15,k=15},
+            punch_left_1={s="punch_left_2",d=12,k=3},
+            punch_left_2={s="punch_left_3",d=15,k=15}
         }
-        ns = ns[_e.state.current]
+        ns = nst[_e.state.curr]
         if ns then
             _e.battle.damage=ns.d + ((eq and eq.kind=="gloves") and 10 or 0)
             _e.battle.knock=ns.k
+            _skip_frames=5
+            _e.battle.damage=0
             return ns.s
         end
+        _e.battle.damage=0
         player_combo=true
         return _e.position.dx>0 and "punch_right_1" or "punch_left_1"
     end
@@ -246,23 +259,22 @@ function debug_items()
 
     add(player.inventory.items,gloves) player.inventory.active_i = 1
     add(player.inventory.items,gun) player.inventory.active_i = 3
-    player.inventory.bullets += 5
+    player.inventory.bullets += 50
 end
 
 function punch_state(_e, state_name, can_combo)
     _e.state.can_attack = false
-    local anim_perc = _e.animation.progress_percentage()
-    if anim_perc > 1 then return "idle" end
+    local anim_perc = _e.animation.prog()
 
-    if can_combo and anim_perc == mid(.62, anim_perc, 1) then
-        _e.state.can_attack = true
-    end
+    -- If animation ends, clear buffer flags
+    if anim_perc >= 1 then
+        _e.inte.x = false
 
-    if _e.inte.x and player_combo then
-        if _e.state.can_attack then 
+        if _e.inte.queue_attack then
+            _e.inte.queue_attack = false
             return get_player_attack_state(_e)
         else
-            player_combo = false
+            return "idle"
         end
     end
 

@@ -28,6 +28,7 @@ function _init()
     intensity = 0
     shake_ctrl = .5
     shake_x,shake_y=0,0
+    _skip_frames=0
 
     _ui_i()
     _scene_highscore_i()
@@ -49,6 +50,11 @@ function _init()
 end
 
 function _update60()
+    -- if _skip_frames>0 then
+    --     _skip_frames-=1
+    -- else
+    --     upd[mode]()
+    -- end
     upd[mode]()
     _ui_u()
 end

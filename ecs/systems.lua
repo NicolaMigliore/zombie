@@ -21,12 +21,15 @@ function create_graphics_system()
                 local cur_pos = e.position
                 if cur_pos != nil then
                     -- render entity
-                    if e.sprite then
-                        local frame = e.sprite.sprites
-                        local frame_width = calc_frame_w(frame)
-                        local max_frame_w = (e.animation != nil) and e.animation.max_frame_w or calc_max_w({frame})
-                        draw_f(frame, cur_pos, e.sprite.flip_x, max_frame_w)
-                        -- pset(cur_pos.x,cur_pos.y,8)
+                    if e.draw then
+                        e.draw(e)
+                    elseif e.sprite then
+                        local p = e.position
+                        local f = e.sprite.sprites
+                        if f then
+                            local x,y=p.x,p.y
+                            ssprc(f[1],f[2],f[3],f[4],x,y,p.w,p.h,e.sprite.fx,false,'cb',1)
+                        end
                     end
 
                     -- render colliders
@@ -59,20 +62,26 @@ function create_graphics_system()
                     if e.battle and e.state and show_hitboxes then
                         -- render hitboxes
                         if e.battle.hitboxes then
-                            local hitbox = e.battle.hitboxes[e.state.current]
+                            local hitbox = e.battle.hitboxes[e.state.curr]
                             if hitbox then 
-                                rect(
-                                    cur_pos.x + hitbox.ox,
-                                    cur_pos.y + hitbox.oy,
-                                    cur_pos.x + hitbox.ox + hitbox.w,
-                                    cur_pos.y + hitbox.oy + hitbox.h,
-                                    2
-                                )
+                                local hitbox_active = false
+                                for f in all(hitbox.active_frames) do
+                                    if(e.animation.i==f)hitbox_active=true
+                                end
+                                if hitbox_active then
+                                    rect(
+                                        cur_pos.x + hitbox.ox,
+                                        cur_pos.y + hitbox.oy,
+                                        cur_pos.x + hitbox.ox + hitbox.w,
+                                        cur_pos.y + hitbox.oy + hitbox.h,
+                                        2
+                                    )
+                                end
                             end
                         end
 
                         if e.battle.hurtboxes then
-                            local hurtbox = e.battle.hurtboxes[e.state.current]
+                            local hurtbox = e.battle.hurtboxes[e.state.curr]
                             if hurtbox then
                                 rect(
                                     cur_pos.x + hurtbox.ox,
@@ -118,43 +127,42 @@ function create_animation_system()
         update = function ()
             if(log_systems)log(time().." - running animation system")
             foreach_entity(function(e)
-                local anim = e.animation
-                if e.sprite and e.state and anim then
-                    if anim.animations[e.state.current] then
+                local a = e.animation
+                if e.sprite and e.state and a then
+                    if a.animations[e.state.curr] then
                         -- if state has changed update current animation
-                        if e.state.current != e.state.previous then
-                            anim.active_anim = e.state.current
-                            anim.max_frame_w = calc_max_w(anim.animations[anim.active_anim].frames)
-                            anim.i = 1
-                            anim.frame_t = 0
+                        if e.state.curr != e.state.prev then
+                            a.active_anim = e.state.curr
+                            a.i = 1
+                            a.frame_t = 0
                         end
 
                         -- progress animation
-                        local cur_a = anim.animations[anim.active_anim]
-                        anim.frame_t += 1
-                        if anim.frame_t >= cur_a.speed * 60 then
-                            anim.i += 1
-                            anim.frame_t = 0
+                        local ca = a.animations[a.active_anim]
+                        a.frame_t += 1
+                        if a.frame_t >= ca.speed * 60 then
+                            a.i += 1
+                            a.frame_t = 0
                         end
 
-                        if anim.i > #cur_a.frames then
-                            if cur_a.loop then
-                                anim.i = 1
+                        if a.i > #ca.frames then
+                            if ca.loop then
+                                a.i = 1
                             else
-                                anim.i = #cur_a.frames + 1 -- Allow to exceed frame count for end check
+                                a.i = #ca.frames + 1 -- Allow to exceed frame count for end check
                             end
                         end
                         
                         -- set sprite
-                        local frame_i = flr(anim.i)
-                        if frame_i > #cur_a.frames then
-                            frame_i = #cur_a.frames
+                        local fi = flr(a.i)
+                        if fi > #ca.frames then
+                            fi = #ca.frames
                         end
 
-                        e.sprite.sprites = cur_a.frames[frame_i]
+                        e.sprite.sprites = ca.frames[fi]
 
                         -- override flip based on animation
-                        if(cur_a.flip_x) e.sprite.flip_x = cur_a.flip_x
+                        if(ca.fx) e.sprite.fx = ca.fx
                     end
                 end
             end)
@@ -170,8 +178,8 @@ function create_control_system()
             if(log_systems)log(time().." - running constrol system")
             foreach_entity(function(e)
                 -- update entity movement inte
-                if e.control and e.control.control then
-                    e.control.control(e)
+                if e.control and e.control.fn then
+                    e.control.fn(e)
                 end
             end)
         end
@@ -195,20 +203,19 @@ function create_physics_system()
             -- update entity movement inte
             if e.position and e.inte then
                 local spd_x = e.control and e.control.spd_x or 0.5
-                local direction_x = 0
+                local dx = 0
                 local can_move_x = true
                 local new_x = e.position.x
 
                 -- left movement
                 if e.inte.left then
-                    direction_x = -1
+                    dx = -1
                 end
                 -- right movement
                 if e.inte.right then
-                    -- new_x += 1 * spd_x
-                    direction_x = 1
+                    dx = 1
                 end
-                new_x += direction_x * spd_x
+                new_x += dx * spd_x
 
                 -- check for collisions with other entities
                 if e.collider and e.collider.can_collide then
@@ -253,29 +260,28 @@ function create_trigger_system()
             if(log_systems)log(time().." - running trigger system")
             foreach_entity(function(e)
                 if e.position and e.triggers and #e.triggers > 0 then
-                    for trigger in all(e.triggers) do
+                    for t in all(e.triggers) do
                         -- check for collisions with other entities
                         local triggered = false
                         for o in all(entities) do
                             if e != o and o.position and o.collider then
                                 local o_bb = o.collider.get_bounding_box(o.position)
-                                local has_collision = colliding(
-                                    e.position.x + trigger.ox, e.position.y + trigger.oy, trigger.w, trigger.h,
+                                if colliding(
+                                    e.position.x + t.ox, e.position.y + t.oy, t.w, t.h,
                                     o_bb.x, o_bb.y, o_bb.w, o_bb.h
-                                )
-                                if has_collision then
+                                ) then
                                     triggered = true
-                                    if trigger.kind == "once" then
-                                        trigger.ontrigger(e,o)
-                                        --trigger = nil
-                                        del(e.triggers,trigger)
+                                    if t.kind == "once" then
+                                        t.ontrigger(e,o)
+                                        --t = nil
+                                        del(e.triggers,t)
                                         break
-                                    elseif trigger.kind == "always" then
-                                        trigger.ontrigger(e,o)
-                                    elseif trigger.kind == "wait"
-                                    and trigger.active == false then
-                                        trigger.ontrigger(e,o)
-                                        trigger.active = true
+                                    elseif t.kind == "always" then
+                                        t.ontrigger(e,o)
+                                    elseif t.kind == "wait"
+                                    and t.active == false then
+                                        t.ontrigger(e,o)
+                                        t.active = true
                                     end
                                 end
                             end
@@ -295,11 +301,10 @@ function create_state_system()
             if(log_systems)log(time().." - running state system")
             foreach_entity(function(e)
                 if e.state and e.state.rules then
-                    -- if(e.state.previous!=e.state.current)log(e.kind..":"..e.state.previous.."->"..e.state.current)
-                    e.state.previous = e.state.current
-                    local state_rule = e.state.rules[e.state.current]
+                    e.state.prev = e.state.curr
+                    local state_rule = e.state.rules[e.state.curr]
                     if state_rule then
-                        e.state.current = state_rule(e)
+                        e.state.curr = state_rule(e)
                     end
                 end
             end)
@@ -319,29 +324,39 @@ function create_battle_system()
                     if(e.battle.cooldown > 0) e.battle.cooldown -= 1
                     
                     -- attack
-                    local hitbox = e.battle.hitboxes[e.state.current]
-                    if hitbox and e.state.current != e.state.previous then
-                        e.battle.cooldown = e.battle.cd_time
-                        -- check all entities with hurboxes
-                        for o in all(entities) do
-                            if o!=e and o.battle and o.state and o.position then
-                                local hurtbox = o.battle.hurtboxes[o.state.current]
-                                if hurtbox and box_collide(e.battle.get_box(e.position,hitbox),o.battle.get_box(o.position,hurtbox)) then
-                                    o.battle.health -= e.battle.damage
-                                    o.state.previous = o.state.current
-                                    o.state.current = "_damaged"
-                                    spawn_shatter(o.position.x,o.position.y-8,{8,8,2},{})
-                                    if(e.battle.knock) o.position.x += (8+rnd(2)) * e.position.dx intensity+=shake_ctrl
-                                    if o.battle.health<1 then
-                                        o.state.current = "_death"
-                                        for d in all({{0,1,.1},{.5,1,.1},{.25,2,.3}}) do
-                                            spawn_smoke(
-                                                o.position.x,
-                                                o.position.y-2,
-                                                {5,7,7},
-                                                { angle = d[1], max_size = d[2]+rnd(2), max_age = 90*rnd(), spd = d[3] }
-                                            )
+                    local hitbox = e.battle.hitboxes[e.state.curr]
+                    if hitbox then
+                        if e.state.curr != e.state.prev then
+                            e.battle.cooldown = e.battle.cd_time
+                        end
+                        local hitbox_active = false
+                        for f in all(hitbox.active_frames) do
+                            if(e.animation.i==f)hitbox_active=true
+                        end
+                        if hitbox_active then
+                            -- check all entities with hurboxes
+                            for o in all(entities) do
+                                if o!=e and o.battle and o.state and o.position then
+                                    local hurtbox = o.battle.hurtboxes[o.state.curr]
+                                    if hurtbox and box_collide(e.battle.get_box(e.position,hitbox),o.battle.get_box(o.position,hurtbox)) then
+                                        o.battle.health -= e.battle.damage
+                                        o.state.prev = o.state.curr
+                                        o.state.curr = "_damaged"
+                                        spawn_shatter(o.position.x,o.position.y-8,{8,8,2},{})
+                                        o.position.x += (e.battle.knock+rnd(2)) * e.position.dx intensity+=shake_ctrl
+                                        if o.battle.health<1 then
+                                            o.state.curr = "_death"
+                                            for d in all({{0,1,.1},{.5,1,.1},{.25,2,.3}}) do
+                                                spawn_smoke(
+                                                    o.position.x,
+                                                    o.position.y-2,
+                                                    {5,7,7},
+                                                    { angle = d[1], max_size = d[2]+rnd(2), max_age = 90*rnd(), spd = d[3] }
+                                                )
+                                            end
                                         end
+                                        e.control.pause_frames=5
+                                        o.control.pause_frames=5
                                     end
                                 end
                             end
@@ -394,63 +409,11 @@ function z_comparison(_a,_b)
     return _a.position.z > _b.position.z
 end
 
-function box_collide(box1,box2)
-    return colliding(box1.x,box1.y,box1.w,box1.h,box2.x,box2.y,box2.w,box2.h)
+function box_collide(b1,b2)
+    return colliding(b1.x,b1.y,b1.w,b1.h,b2.x,b2.y,b2.w,b2.h)
 end
 
 function colliding(x1,y1,w1,h1,x2,y2,w2,h2)
     return flr(x1+w1) > flr(x2) and flr(x1) < flr(x2+w2)
         and flr(y1+h1) > flr(y2) and flr(y1) < flr(y2+h2)
-end
-
--- Function to calculate the bounding box width of a single frame
-function calc_frame_w(f)
-    local min_x, max_x = 127, -127
-    for s in all(f.sprites) do
-        local left, right = s.ox, s.ox + s.w
-        if left < min_x then min_x = left end
-        if right > max_x then max_x = right end
-    end
-    return max_x - min_x
-end
-
--- Function to calculate the maximum width among all frames
-function calc_max_w(fs)
-    local max_w = 0
-    for f in all(fs) do
-        local w = calc_frame_w(f)
-        if w > max_w then max_w = w end
-    end
-    return max_w
-end
-
--- Function to draw a frame of sprites using sspr
-function draw_f(f, p, fx, fw)
-    if f.pal_rep then
-        for pr in all(f.pal_rep) do
-            pal(pr[1], pr[2])
-        end
-    end
-
-    local bx = p.x - fw / 2
-    for s in all(f.sprites) do
-        local x = bx + s.ox
-        local y = p.y + s.oy
-        if fx then x = bx + (fw - s.ox - s.w) end
-
-        -- outline
-        for i=1,15 do
-            pal(i,2)
-        end
-        sspr(s.x, s.y, s.w, s.h, x-1, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
-        sspr(s.x, s.y, s.w, s.h, x+1, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
-        sspr(s.x, s.y, s.w, s.h, x, y-1, s.w, s.h, fx and not s.fx or s.fx, s.fy)
-        sspr(s.x, s.y, s.w, s.h, x, y+1, s.w, s.h, fx and not s.fx or s.fx, s.fy)
-        pal()
-
-
-        sspr(s.x, s.y, s.w, s.h, x, y, s.w, s.h, fx and not s.fx or s.fx, s.fy)
-    end
-
-    pal()
 end

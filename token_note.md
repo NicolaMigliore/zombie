@@ -1,0 +1,2 @@
+- toke: 7833    new anim def -> 7632    new shoot state -> 7587     cleaned components -> 7072      remove comments -> 7072
+- char: 63545   new anim def -> 61981   new shoot state -> 61729    cleaned components -> 58105     remove comments -> 56833
