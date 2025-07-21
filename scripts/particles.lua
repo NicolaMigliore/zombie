@@ -26,7 +26,7 @@ end
 
 function spawn_shatter(_x,_y,_colors,_opts)
 	local tmp_dx, tmp_dy = _opts.dx or 0, _opts.dy or -1
-
+	local ma = (_opts.max_age or 30) + rnd(10)
 	for i=1,rnd(20)+5 do
 		local angle = rnd()
 		local dx = sin(angle)*rnd(1.5)+(tmp_dx/2)
@@ -37,7 +37,7 @@ function spawn_shatter(_x,_y,_colors,_opts)
 			new_position(_x,_y,1,0),
 			dx,
 			dy,
-			30,
+			ma,
 			_colors,
 			1,
 			{ has_gravity=true }

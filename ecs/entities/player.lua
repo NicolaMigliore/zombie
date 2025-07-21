@@ -35,16 +35,27 @@ function _player_i()
             return "idle"
         end,
         _damaged = function(_e)
-            local prog = _e.animation.prog()
-            if(prog>1) return "idle"
+            if(_e.animation.prog()>.9) return "idle"
             return "_damaged"
         end,
         _death = function(_e)
-            if _e.animation.prog()>1 then
+            if _e.animation.prog()>.9 then
                 del(entities,_e)
                 load_scene_death()
             else
-                spawn_shatter(_e.position.x,_e.position.y-8,{8,8,2},{})
+                -- spawn_shatter(_e.position.x,_e.position.y-8,{8,8,2},{})
+                for i=1,5 do
+                    add(particles,new_particle(
+                        "pixel",
+                        new_position(_e.position.x,_e.position.y-4,1,0),
+                        rnd()-.5,
+                        -1-rnd(3),
+                        5+rnd(5),
+                        {8,8,2},
+                        1,
+                        { has_gravity=true }
+                    ))
+                end
                 return "_death"
             end
         end,
@@ -88,12 +99,13 @@ function _player_i()
         shoot = p_hb,
     }
     local player_hitboxes = {
-        punch_right_1 = { ox=2, oy=-8, w=10, h=6, active_frames={5,6,7} },
-        punch_right_2 = { ox=2, oy=-8, w=10, h=6, active_frames={5,6,7} },
-        punch_right_3 = { ox=3, oy=-12, w=11, h=12, active_frames={5,6,7} },
-        punch_left_1 = { ox=-12, oy=-8, w=10, h=6, active_frames={5,6,7} },
-        punch_left_2 = { ox=-12, oy=-8, w=10, h=6, active_frames={5,6,7} },
-        punch_left_3 = { ox=-13, oy=-12, w=11, h=12, active_frames={5,6,7} },
+        -- punch_right_1 = { ox=2, oy=-8, w=10, h=6, active_frames={5,6,7} },
+        punch_right_1 = { ox=0, oy=-8, w=12, h=6, active_frames={5,6} },
+        punch_right_2 = { ox=0, oy=-8, w=12, h=6, active_frames={5,6} },
+        punch_right_3 = { ox=0, oy=-12, w=14, h=12, active_frames={5,6} },
+        punch_left_1 = { ox=-14, oy=-8, w=12, h=6, active_frames={5,6} },
+        punch_left_2 = { ox=-14, oy=-8, w=12, h=6, active_frames={5,6} },
+        punch_left_3 = { ox=-16, oy=-12, w=14, h=12, active_frames={5,6} },
     }
 
     -- #region player entity
@@ -189,10 +201,8 @@ function get_player_attack_state(_e)
             _e.battle.damage=ns.d + ((eq and eq.kind=="gloves") and 10 or 0)
             _e.battle.knock=ns.k
             _skip_frames=5
-            _e.battle.damage=0
             return ns.s
         end
-        _e.battle.damage=0
         player_combo=true
         return _e.position.dx>0 and "punch_right_1" or "punch_left_1"
     end

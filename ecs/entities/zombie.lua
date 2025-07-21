@@ -5,7 +5,7 @@ function spawn_zombie(_x)
     ac.add_anim_new('idle',str2frames('16,48|32,48|32,48|48,48'),.2,true)
     ac.add_anim_new('run',str2frames('64,48|80,48|96,48|112,48'),.2,true)
     ac.add_anim_new('_damaged',str2frames('32,48|32,48|48,48'),.2,false)
-    ac.add_anim_new('_death',{{0,0,8,8}},.5,false)
+    ac.add_anim_new('_death',str2frames('0,48|0,48'),.1,false)
     local atk='0,64|0,64|0,64|0,64|16,64|32,64|48,64|48,64'
     ac.add_anim_new('attack_right',str2frames(atk),.06,false)
     ac.add_anim_new('attack_left',str2frames(atk),.06,false)
@@ -34,7 +34,21 @@ function spawn_zombie(_x)
             _e.collider = nil
             _e.inte.left,_e.inte.left = false,false
 
+            for i=1,5 do
+                add(particles,new_particle(
+                    "pixel",
+                    new_position(_e.position.x,_e.position.y-4,1,0),
+                    rnd()-.5,
+                    -1-rnd(3),
+                    5+rnd(5),
+                    {8,8,2},
+                    1,
+                    { has_gravity=true }
+                ))
+            end
+
             -- delete entity
+            log(_e.animation.prog())
             if _e.animation.prog()>.9 then
                 del(entities,_e)
             else
@@ -73,8 +87,8 @@ function spawn_zombie(_x)
         attack_left = z_hb,
     }
     local zombie_hitboxes = {
-        attack_left = { ox=-14, oy=-8, w=12, h=4 },
-        attack_right = { ox=2, oy=-8, w=12, h=4 }
+        attack_left = { ox=-14, oy=-8, w=12, h=4, active_frames={5,6} },
+        attack_right = { ox=2, oy=-8, w=12, h=4, active_frames={5,6} }
     }
     local oz = 2+rnd(5)
     -- #region zombie entity

@@ -123,7 +123,7 @@ function new_battle(_hitboxes,_hurtboxes,_opts)
         health =  health,
         max_health = health,
         cd_time = _opts.cd_time or 180,
-        cooldown = _opts.cd_time or 0,
+        hit_timer = 0,
         damage = _opts.damage or 20,
         knock = 0,
         get_box = function(_pos,_box)
@@ -249,6 +249,7 @@ function new_particle(_kind,_pos,_dx,_dy,_max_age,_colors,_max_size,_opts)
         has_gravity=_opts.has_gravity or false,
         has_rotation=_opts.has_rotation or false,
         sprite=_opts.sprite or 0,
+        opts=_opts
     }
     return p
 end

@@ -1,10 +1,15 @@
 function _scene_level_u()
-    animation_system.update()
-    control_system.update()
-    physics_system.update()
+    if _skip_frames>0 then
+        _skip_frames-=1
+    else
+        animation_system.update()
+        control_system.update()
+        physics_system.update()
+        battle_system.update()
+        state_system.update()
+    end
+
     trigger_system.update()
-    state_system.update()
-    battle_system.update()
     particle_system.update()
 
     -- move camera
@@ -106,5 +111,5 @@ function load_scene_level()
 
     -- create level
     create_level()
-    -- spawn_zombie(80)
+    spawn_zombie(130)
 end

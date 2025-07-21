@@ -15,7 +15,7 @@ function create_graphics_system()
             -- draw level
             if(options.draw_level) options.draw_level()
             
-            -- draw entities
+            --#region draw entities
             sort(entities, z_comparison)
             foreach_entity(function(e)
                 local cur_pos = e.position
@@ -28,7 +28,15 @@ function create_graphics_system()
                         local f = e.sprite.sprites
                         if f then
                             local x,y=p.x,p.y
-                            ssprc(f[1],f[2],f[3],f[4],x,y,p.w,p.h,e.sprite.fx,false,'cb',1)
+                            if e.battle and e.battle.hit_timer>0 then
+                                for i=0,15 do
+                                    pal(i, 7)
+                                end
+                                ssprc(f[1],f[2],f[3],f[4],x,y,p.w*.9,p.h*.7,e.sprite.fx,false,'cb')
+                                pal()
+                            else
+                                ssprc(f[1],f[2],f[3],f[4],x,y,p.w,p.h,e.sprite.fx,false,'cb',1)
+                            end
                         end
                     end
 
@@ -63,7 +71,7 @@ function create_graphics_system()
                         -- render hitboxes
                         if e.battle.hitboxes then
                             local hitbox = e.battle.hitboxes[e.state.curr]
-                            if hitbox then 
+                            if hitbox and e.battle.cd_time==0 then 
                                 local hitbox_active = false
                                 for f in all(hitbox.active_frames) do
                                     if(e.animation.i==f)hitbox_active=true
@@ -106,7 +114,7 @@ function create_graphics_system()
                 end
             end)
 
-            -- draw particles
+            --#region draw particles
             for p in all(particles) do
                 if p.kind == "pixel" or p.kind == "gravity_pixel" or p.kid == "ash" then
                     pset(p.position.x,p.position.y,p.color)
@@ -114,8 +122,20 @@ function create_graphics_system()
                     circfill(p.position.x,p.position.y,p.position.w,p.color)
                 elseif p.kind == "sprite" then
                     spr(p.sprite,p.position.x,p.position.y,p.position.w,p.position.h)
+                elseif p.kind == "smear" then
+                    local a,cx,cy=p.age/p.max_age,0,0
+                    local px,py,w,h=p.position.x,p.position.y,p.position.w,p.position.h
+                    local x1,x2=p.dx>=0 and px-w or px, p.dx>=0 and px or px+w
+                    local cx1=(p.dx>=0 and x1+(x2-x1+5)/2 or px-5)-gamecamera.position.x-flr(shake_x)
+                    local y1,y2=flr(py-h/2),flr(py+h/2)
+                    clip(flr(cx1),flr(y1-1),flr(x2-x1)-1,20)
+                    for i=0,3 do oval(flr(x1)+i,y1,flr(x2)+i,y2,p.color) end
+                    clip()
                 end
             end
+            
+            -- shake camera
+            if(intensity>0) shake()
         end
     }
 end
@@ -247,8 +267,6 @@ function create_physics_system()
                 if (can_move_x) e.position.x = new_x
             end
         end)
-        -- shake camera
-        if(intensity>0) shake()
     end
     return ps
 end
@@ -320,15 +338,13 @@ function create_battle_system()
             -- check all entities with hitboxes
             foreach_entity(function(e)
                 if e.battle and e.state and e.position then
-                    -- advance attack cooldown
-                    if(e.battle.cooldown > 0) e.battle.cooldown -= 1
+                    -- advance attack hit_timer
+                    if(e.battle.hit_timer > 0) e.battle.hit_timer -= 1
+                    if(e.battle.cd_time > 0) e.battle.cd_time -= 1
                     
                     -- attack
                     local hitbox = e.battle.hitboxes[e.state.curr]
-                    if hitbox then
-                        if e.state.curr != e.state.prev then
-                            e.battle.cooldown = e.battle.cd_time
-                        end
+                    if hitbox and e.battle.cd_time==0 then
                         local hitbox_active = false
                         for f in all(hitbox.active_frames) do
                             if(e.animation.i==f)hitbox_active=true
@@ -343,20 +359,45 @@ function create_battle_system()
                                         o.state.prev = o.state.curr
                                         o.state.curr = "_damaged"
                                         spawn_shatter(o.position.x,o.position.y-8,{8,8,2},{})
+
+                                        local impact_x,impact_y=e.position.x+8*e.position.dx,e.position.y-8+rnd(3)
+                                        add(particles,new_particle(
+                                            "smear",
+                                            new_position(impact_x,impact_y,10,5),
+                                            e.position.dx,
+                                            0,
+                                            10+rnd(10),
+                                            {7},
+                                            10+rnd(10),
+                                            {}
+                                        ))
+                                        for i=1,3+rnd(2)do
+                                            add(particles,new_particle(
+                                                "smoke",
+                                                new_position(impact_x,impact_y,max_size,0),
+                                                e.position.dx*(rnd(1)+1),
+                                                rnd()-.5,
+                                                rnd(10)+30,
+                                                {7,7,6,5},
+                                                0.5+rnd(2),
+                                                {}
+                                            ))                                         
+                                        end
+
                                         o.position.x += (e.battle.knock+rnd(2)) * e.position.dx intensity+=shake_ctrl
                                         if o.battle.health<1 then
                                             o.state.curr = "_death"
-                                            for d in all({{0,1,.1},{.5,1,.1},{.25,2,.3}}) do
-                                                spawn_smoke(
-                                                    o.position.x,
-                                                    o.position.y-2,
-                                                    {5,7,7},
-                                                    { angle = d[1], max_size = d[2]+rnd(2), max_age = 90*rnd(), spd = d[3] }
-                                                )
-                                            end
+                                            -- for d in all({{0,1,.1},{.5,1,.1},{.25,2,.3}}) do
+                                            --     spawn_smoke(
+                                            --         o.position.x,
+                                            --         o.position.y-2,
+                                            --         {5,7,7},
+                                            --         { angle = d[1], max_size = d[2]+rnd(2), max_age = 90*rnd(), spd = d[3] }
+                                            --     )
+                                            -- end
                                         end
-                                        e.control.pause_frames=5
-                                        o.control.pause_frames=5
+                                        o.battle.hit_timer = 15
+                                        if(e.state.curr=='punch_right_3'or e.state.curr=='punch_left_3')_skip_frames=15
                                     end
                                 end
                             end
@@ -393,7 +434,12 @@ function create_particle_system()
             end
 
             --shrink (based on position.w)
-            if p.kind=="smoke" then
+            if p.kind=="smoke" or p.kind=='smear' then
+                p.position.w=(1-age_perc)*p.max_size
+                p.position.h=(1-age_perc)*p.max_size
+            end
+
+            if p.kind=='smear' then
                 p.position.w=(1-age_perc)*p.max_size
             end
 
